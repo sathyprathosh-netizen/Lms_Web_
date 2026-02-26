@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Tenancy Engine | APEX-LMS</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/super-admin.css">
+    <style>
+        .tenant-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: var(--space-lg);
+        }
+
+        .isolation-bar {
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .isolation-fill {
+            height: 100%;
+            background: var(--color-secondary);
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.8rem;
+        }
+
+        .shield-active {
+            color: var(--color-success);
+            font-weight: 800;
+        }
+
+        .terminal-box {
+            background: #0f172a;
+            color: #10b981;
+            font-family: monospace;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            height: 200px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body data-current-role="superadmin">
+
+    <div class="dashboard-layout">
+        <header class="orchestrator-header">
+            <div class="header-main">
+                <a href="../super-admin.html" class="brand">APEX<span>SaaS</span></a>
+                <div class="status-badge">
+                    <div class="status-dot"></div> MT-Engine: Operational
+                </div>
+                <div class="user-profile">
+                    <div class="profile-info hide-mobile">
+                        <div class="profile-name">Root Admin</div>
+                        <div class="profile-role">Systems Controller</div>
+                    </div>
+                    <div class="profile-avatar">RA</div>
+                    <button class="btn btn-outline" style="color: white; border-color: rgba(255,255,255,0.2);"
+                        onclick="window.location.href='../login.html'">Logout</button>
+                </div>
+            </div>
+            <nav class="infra-nav">
+                <a href="architectural-command.html" class="nav-item">⛁ Architectural Command</a>
+                <a href="multi-tenancy-engine.html" class="nav-item active">🏢 Multi-Tenancy Engine</a>
+                <a href="macro-analytics.html" class="nav-item">📈 Macro Analytics</a>
+                <a href="security-iam.html" class="nav-item">🔒 Security & IAM Proxy</a>
+            </nav>
+        </header>
+
+        <div class="orchestrator-content">
+            <main class="main-scroll" style="background: #f1f5f9;">
+                <div class="dashboard-grid">
+                    <!-- Overview Stats -->
+                    <div class="col-span-12 card animate-fade-in-up"
+                        style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: white; border: none;">
+                        <div class="flex justify-between align-center flex-mobile-col" style="gap: 20px;">
+                            <div>
+                                <h2 style="margin: 0; font-size: 1.8rem; color: white;">Global SaaS Multi-Tenancy Engine
+                                </h2>
+                                <p style="color: rgba(255,255,255,0.6);">Enterprise-Grade Isolation (Level 4), Dynamic
+                                    Shard
+                                    Allocation & Resource Shielding</p>
+                            </div>
+                            <div class="flex gap-md flex-wrap justify-center">
+                                <div class="card stat-card"
+                                    style="padding: 12px 25px; text-align: center; background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); min-width: 140px;">
+                                    <div style="font-size: 0.7rem; font-weight: 800; color: rgba(255,255,255,0.5);">
+                                        ACTIVE TENANTS</div>
+                                    <div id="stat-tenants" data-target="1284"
+                                        style="font-size: 1.4rem; font-weight: 900; color: white;">0</div>
+                                </div>
+                                <div class="card stat-card"
+                                    style="padding: 12px 25px; text-align: center; background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); min-width: 140px;">
+                                    <div style="font-size: 0.7rem; font-weight: 800; color: rgba(255,255,255,0.5);">
+                                        ISOLATION BREACHES</div>
+                                    <div id="stat-breaches" data-target="0"
+                                        style="font-size: 1.4rem; font-weight: 900; color: var(--color-success);">0
+                                    </div>
+                                </div>
+                                <div class="card stat-card"
+                                    style="padding: 12px 25px; text-align: center; background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); min-width: 140px;">
+                                    <div style="font-size: 0.7rem; font-weight: 800; color: rgba(255,255,255,0.5);">
+                                        SHARD DENSITY</div>
+                                    <div id="stat-density" data-target="0.84"
+                                        style="font-size: 1.4rem; font-weight: 900; color: var(--color-secondary);">0
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Logical Shard Mapping Visualization -->
+                    <div class="col-span-12 card animate-fade-in-up delay-100">
+                        <div class="flex justify-between align-center" style="margin-bottom: 20px;">
+                            <h3>Dynamic Shard Allocation Matrix</h3>
+                            <span class="badge badge-primary">ACTIVE BALANCING</span>
+                        </div>
+                        <div class="shard-matrix"
+                            style="display: grid; grid-template-columns: repeat(12, 1fr); gap: 10px;">
+                            <!-- Shard Blocks -->
+                            <div class="shard-box active" title="Shard-01: High density"></div>
+                            <div class="shard-box active" title="Shard-02: Balanced"></div>
+                            <div class="shard-box warning" title="Shard-03: Hot shard (Acme Corp)"></div>
+                            <div class="shard-box active" title="Shard-04: Balanced"></div>
+                            <div class="shard-box" title="Shard-05: Cold storage"></div>
+                            <div class="shard-box active" title="Shard-06: Balanced"></div>
+                            <div class="shard-box active" title="Shard-07: High density"></div>
+                            <div class="shard-box active" title="Shard-08: Balanced"></div>
+                            <div class="shard-box active" title="Shard-09: Balanced"></div>
+                            <div class="shard-box" title="Shard-10: Provisioning"></div>
+                            <div class="shard-box active" title="Shard-11: Balanced"></div>
+                            <div class="shard-box active" title="Shard-12: Balanced"></div>
+                        </div>
+                        <div class="flex justify-between text-muted"
+                            style="font-size: 0.7rem; margin-top: 10px; font-weight: 700;">
+                            <span>CLUSTER_01: PRODUCTION</span>
+                            <span>CLUSTER_02: ARCHIVE</span>
+                            <span>CLUSTER_03: STAGING</span>
+                        </div>
+                    </div>
+
+                    <!-- Tenant Cards -->
+                    <div class="col-span-8 card animate-fade-in-up delay-200">
+                        <div class="flex justify-between align-center" style="margin-bottom: 20px;">
+                            <h3 style="margin:0;">High-Priority Tenant Clusters</h3>
+                            <div class="flex gap-sm">
+                                <input type="text" placeholder="Search tenants..."
+                                    style="padding: 5px 15px; border-radius: 20px; border: 1px solid #e2e8f0; font-size: 0.8rem;">
+                            </div>
+                        </div>
+                        <div class="tenant-grid">
+                            <!-- Acme Corp -->
+                            <div class="card tenant-card">
+                                <div class="flex justify-between align-center">
+                                    <div>
+                                        <div style="font-weight: 800; font-size: 1.1rem;">Acme Corp</div>
+                                        <div class="text-muted" style="font-size: 0.7rem;">ID: tnt_8392-acme</div>
+                                    </div>
+                                    <span class="badge" style="background: #ef4444; color: white;">PLATINUM VIP</span>
+                                </div>
+                                <div style="margin-top: 20px;">
+                                    <div class="metric-row"><span>Storage (NVMe)</span><span>1.2TB / 2.0TB</span></div>
+                                    <div class="isolation-bar">
+                                        <div class="isolation-fill" style="width: 60%;"></div>
+                                    </div>
+                                    <div class="metric-row" style="margin-top: 10px;"><span>Compute
+                                            (vVCPU)</span><span>92%
+                                            - OVERSCALE</span></div>
+                                    <div class="isolation-bar">
+                                        <div class="isolation-fill" style="width: 92%; background: #ef4444;"></div>
+                                    </div>
+                                    <div class="metric-row" style="margin-top: 10px;"><span>IOPS
+                                            Rate</span><span>142k/s</span></div>
+                                </div>
+                                <div class="flex gap-sm" style="margin-top: 20px;">
+                                    <button class="btn btn-outline" style="flex: 1; font-size: 0.75rem;"
+                                        onclick="openAction('Acme Corp', 'tnt_8392-acme', 'Scale Up')">Scale Up</button>
+                                    <button class="btn btn-outline" style="flex: 1; font-size: 0.75rem;"
+                                        onclick="openAction('Acme Corp', 'tnt_8392-acme', 'Evacuate')">Evacuate</button>
+                                </div>
+                            </div>
+
+                            <!-- Nexus Tech -->
+                            <div class="card tenant-card">
+                                <div class="flex justify-between align-center">
+                                    <div>
+                                        <div style="font-weight: 800; font-size: 1.1rem;">Nexus Tech</div>
+                                        <div class="text-muted" style="font-size: 0.7rem;">ID: tnt_1920-nex</div>
+                                    </div>
+                                    <span class="badge badge-primary">ENTERPRISE</span>
+                                </div>
+                                <div style="margin-top: 20px;">
+                                    <div class="metric-row"><span>Storage (HDD)</span><span>4.1TB / 10TB</span></div>
+                                    <div class="isolation-bar">
+                                        <div class="isolation-fill" style="width: 41%;"></div>
+                                    </div>
+                                    <div class="metric-row" style="margin-top: 10px;"><span>Compute
+                                            (vVCPU)</span><span>24%
+                                            - OPTIMAL</span></div>
+                                    <div class="isolation-bar">
+                                        <div class="isolation-fill" style="width: 24%; background: #10b981;"></div>
+                                    </div>
+                                    <div class="metric-row" style="margin-top: 10px;"><span>IOPS
+                                            Rate</span><span>12k/s</span></div>
+                                </div>
+                                <div class="flex gap-sm" style="margin-top: 20px;">
+                                    <button class="btn btn-outline" style="flex: 1; font-size: 0.75rem;"
+                                        onclick="openAction('Nexus Tech', 'tnt_1920-nex', 'Modify')">Modify</button>
+                                    <button class="btn btn-outline" style="flex: 1; font-size: 0.75rem;"
+                                        onclick="openAction('Nexus Tech', 'tnt_1920-nex', 'Audit')">Audit</button>
+                                </div>
+                            </div>
+
+                            <!-- Stark Industries -->
+                            <div class="card tenant-card">
+                                <div class="flex justify-between align-center">
+                                    <div>
+                                        <div style="font-weight: 800; font-size: 1.1rem;">Stark Industries</div>
+                                        <div class="text-muted" style="font-size: 0.7rem;">ID: tnt_0032-stk</div>
+                                    </div>
+                                    <span class="badge badge-success">PLATINUM</span>
+                                </div>
+                                <div style="margin-top: 20px;">
+                                    <div class="metric-row"><span>Storage (SSD)</span><span>0.8TB / 5.0TB</span></div>
+                                    <div class="isolation-bar">
+                                        <div class="isolation-fill" style="width: 16%;"></div>
+                                    </div>
+                                    <div class="metric-row" style="margin-top: 10px;"><span>Compute
+                                            (vVCPU)</span><span>58%
+                                            - STABLE</span></div>
+                                    <div class="isolation-bar">
+                                        <div class="isolation-fill" style="width: 58%; background: #3b82f6;"></div>
+                                    </div>
+                                    <div class="metric-row" style="margin-top: 10px;"><span>IOPS
+                                            Rate</span><span>88k/s</span></div>
+                                </div>
+                                <div class="flex gap-sm" style="margin-top: 20px;">
+                                    <button class="btn btn-outline" style="flex: 1; font-size: 0.75rem;"
+                                        onclick="openAction('Stark Industries', 'tnt_0032-stk', 'Modify')">Modify</button>
+                                    <button class="btn btn-outline" style="flex: 1; font-size: 0.75rem;"
+                                        onclick="openAction('Stark Industries', 'tnt_0032-stk', 'Audit')">Audit</button>
+                                </div>
+                            </div>
+
+                            <!-- Umbrella Corp -->
+                            <div class="card tenant-card">
+                                <div class="flex justify-between align-center">
+                                    <div>
+                                        <div style="font-weight: 800; font-size: 1.1rem;">Umbrella Corp</div>
+                                        <div class="text-muted" style="font-size: 0.7rem;">ID: tnt_6660-umb</div>
+                                    </div>
+                                    <span class="badge" style="background: #991b1b; color: white;">BIO-TECH VIP</span>
+                                </div>
+                                <div style="margin-top: 20px;">
+                                    <div class="metric-row"><span>Storage (NVMe)</span><span>6.4TB / 8.0TB</span></div>
+                                    <div class="isolation-bar">
+                                        <div class="isolation-fill" style="width: 80%;"></div>
+                                    </div>
+                                    <div class="metric-row" style="margin-top: 10px;"><span>Compute
+                                            (vVCPU)</span><span>74%
+                                            - CRITICAL</span></div>
+                                    <div class="isolation-bar">
+                                        <div class="isolation-fill" style="width: 74%; background: #991b1b;"></div>
+                                    </div>
+                                    <div class="metric-row" style="margin-top: 10px;"><span>IOPS
+                                            Rate</span><span>210k/s</span></div>
+                                </div>
+                                <div class="flex gap-sm" style="margin-top: 20px;">
+                                    <button class="btn btn-outline" style="flex: 1; font-size: 0.75rem;"
+                                        onclick="openAction('Umbrella Corp', 'tnt_6660-umb', 'Scale Up')">Scale
+                                        Up</button>
+                                    <button class="btn btn-outline" style="flex: 1; font-size: 0.75rem;"
+                                        onclick="openAction('Umbrella Corp', 'tnt_6660-umb', 'Quarantine')">Quarantine</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Isolation Controls -->
+                    <div class="col-span-4 card animate-fade-in-up delay-300">
+                        <div class="flex justify-between align-center" style="margin-bottom: 20px;">
+                            <h3 style="margin:0;">Shielding & Guardrails</h3>
+                            <span class="badge badge-success" style="font-size: 0.6rem;">SECURITY LVL 4</span>
+                        </div>
+
+                        <div
+                            style="background: #f8fafc; padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #e2e8f0;">
+                            <div class="flex justify-between align-center" style="margin-bottom: 12px;">
+                                <span style="font-size: 0.8rem; font-weight: 700;">Global Isolation Shield</span>
+                                <div class="status-dot" style="background: var(--color-success);"></div>
+                            </div>
+                            <div class="flex justify-between align-center" style="margin-bottom: 12px;">
+                                <span style="font-size: 0.8rem; font-weight: 700;">Logical DB Partitioning</span>
+                                <span class="badge badge-primary" style="font-size: 0.6rem;">ENFORCED</span>
+                            </div>
+                            <div class="flex justify-between align-center" style="margin-bottom: 12px;">
+                                <span style="font-size: 0.8rem; font-weight: 700;">Cross-Tenant Encryption</span>
+                                <span class="badge badge-primary" style="font-size: 0.6rem;">AES-256-GCM</span>
+                            </div>
+                            <div class="flex justify-between align-center">
+                                <span style="font-size: 0.8rem; font-weight: 700;">Resource Noisy Neighbor</span>
+                                <span class="badge badge-success" style="font-size: 0.6rem;">NEUTRALIZED</span>
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom: 20px;">
+                            <label
+                                style="font-size: 0.7rem; font-weight: 800; color: #64748b; text-transform: uppercase;">Isolation
+                                Policy</label>
+                            <select
+                                style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0; margin-top: 5px; font-weight: 600;">
+                                <option>Strict Hardware Isolation</option>
+                                <option>Logical Namespace Separation</option>
+                                <option>Shared Computing Model</option>
+                            </select>
+                        </div>
+
+                        <button class="btn btn-primary" style="width: 100%; padding: 15px;">Recalibrate Dynamic
+                            Shards</button>
+
+                    </div>
+            </main>
+
+            <!-- Command Panel (The Separate Column) -->
+            <aside id="action-panel" class="command-panel">
+                <div class="panel-header">
+                    <h3 id="panel-title">CONTROL INTERFACE</h3>
+                    <button class="btn-close" onclick="closePanel()" title="Close Panel">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="panel-content">
+                    <div id="tenant-info" class="tenant-info-card">
+                        <div id="target-tenant-name"
+                            style="font-weight: 800; font-size: 1.4rem; color: #1e293b; margin-bottom: 4px;">Tenant Name
+                        </div>
+                        <div id="target-tenant-id" class="text-muted"
+                            style="font-size: 0.85rem; letter-spacing: 0.5px; font-weight: 500;">ID: tnt_xxxx</div>
+                    </div>
+
+                    <div class="action-details">
+                        <label id="action-label"
+                            style="font-size: 0.75rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 8px;">Target
+                            Operation</label>
+                        <div id="action-desc"
+                            style="font-size: 1.1rem; line-height: 1.4; font-weight: 600; color: #0f172a;">
+                            Executing system recalibration...</div>
+                    </div>
+
+                    <div id="dynamic-controls">
+                        <!-- Content injected via JS -->
+                    </div>
+
+                    <div style="margin-top: auto; padding-top: 30px;">
+                        <button id="run-btn" class="btn btn-primary" style="width: 100%;" onclick="runAction()">Confirm
+                            & Execute Command</button>
+                        <p
+                            style="font-size: 0.7rem; color: #94a3b8; text-align: center; margin-top: 15px; font-weight: 600;">
+                            LEVEL 4 ROOT AUTHORIZATION REQUIRED</p>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <style>
+        .shard-box {
+            height: 40px;
+            background: rgba(148, 163, 184, 0.1);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .shard-box.active {
+            background: rgba(14, 165, 233, 0.1);
+            border-color: rgba(14, 165, 233, 0.3);
+            box-shadow: inset 0 0 10px rgba(14, 165, 233, 0.05);
+        }
+
+        .shard-box.warning {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.3);
+            animation: pulse-red 2s infinite;
+        }
+
+        @keyframes pulse-red {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        .tenant-card {
+            transition: all 0.3s;
+            cursor: pointer;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+        }
+
+        .tenant-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            border-color: var(--color-secondary);
+        }
+
+        .isolation-bar {
+            height: 6px;
+            background: #f1f5f9;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        .isolation-fill {
+            height: 100%;
+            background: var(--color-secondary);
+            border-radius: 3px;
+        }
+
+        .stat-card {
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s, background 0.3s;
+        }
+
+        .stat-card:hover {
+            background: rgba(255, 255, 255, 0.1) !important;
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 1024px) {
+            .flex-mobile-col {
+                flex-direction: column !important;
+                align-items: center !important;
+                text-align: center;
+            }
+
+            .stat-card {
+                width: 100%;
+                min-width: unset !important;
+            }
+        }
+
+        /* Command Panel Styles */
+        .orchestrator-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            background: #f1f5f9;
+        }
+
+        .command-panel {
+            width: 0;
+            flex-shrink: 0;
+            height: 100%;
+            background: white;
+            box-shadow: -10px 0 30px rgba(0, 0, 0, 0.05);
+            border-left: 0 solid #e2e8f0;
+            z-index: 90;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .command-panel.active {
+            width: 400px;
+            border-left-width: 1px;
+        }
+
+        .panel-header {
+            padding: 20px 25px;
+            background: #ffffff;
+            color: #1e293b;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .panel-header h3 {
+            margin: 0;
+            font-size: 0.9rem;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            color: #64748b;
+            text-transform: uppercase;
+        }
+
+        .btn-close {
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            color: #64748b;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-close:hover {
+            background: #e2e8f0;
+            color: #0f172a;
+            transform: scale(1.1);
+        }
+
+        .panel-content {
+            padding: 25px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            background: #ffffff;
+        }
+
+        .tenant-info-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .action-details {
+            margin-bottom: 25px;
+        }
+
+        .control-group {
+            background: #f1f5f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        #run-btn {
+            padding: 16px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);
+        }
+    </style>
+
+    <script>
+        let currentTenant = null;
+        let currentAction = null;
+
+        function animateValue(obj, start, end, duration) {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const value = (progress * (end - start) + start);
+
+                if (end % 1 === 0) {
+                    obj.innerHTML = Math.floor(value).toLocaleString();
+                } else {
+                    obj.innerHTML = value.toFixed(2);
+                }
+
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const tenants = document.getElementById('stat-tenants');
+            const breaches = document.getElementById('stat-breaches');
+            const density = document.getElementById('stat-density');
+
+            setTimeout(() => {
+                animateValue(tenants, 0, parseInt(tenants.dataset.target), 1500);
+                setTimeout(() => animateValue(breaches, 0, parseInt(breaches.dataset.target), 1000), 200);
+                setTimeout(() => animateValue(density, 0, parseFloat(density.dataset.target), 1200), 400);
+            }, 500);
+        });
+
+        function openAction(tenantName, tenantId, actionType) {
+            currentTenant = { name: tenantName, id: tenantId };
+            currentAction = actionType;
+
+            document.getElementById('target-tenant-name').innerText = tenantName;
+            document.getElementById('target-tenant-id').innerText = `SYSTEM_ID: ${tenantId}`;
+
+            const desc = document.getElementById('action-desc');
+            const controls = document.getElementById('dynamic-controls');
+            const runBtn = document.getElementById('run-btn');
+
+            controls.innerHTML = '';
+            runBtn.className = 'btn btn-primary';
+            runBtn.style.background = ''; // Reset
+            runBtn.style.borderColor = '';
+
+            switch (actionType) {
+                case 'Scale Up':
+                    desc.innerText = "Increasing elastic resource boundaries for compute and storage clusters.";
+                    controls.innerHTML = `
+                        <div class="control-group">
+                            <label style="font-size: 0.75rem; font-weight: 800; color: #64748b; display: block; margin-bottom: 10px; text-transform: uppercase;">Allocation Profile</label>
+                            <select class="form-control" style="width: 100%; border-radius: 6px; border-color: #e2e8f0;">
+                                <option>BURST_MODE (+50% vVCPU)</option>
+                                <option>STATIC_OPTIMAL (+20% TOTAL)</option>
+                                <option>HYPER_SCALE (DIRECT_DMA)</option>
+                            </select>
+                        </div>
+                    `;
+                    break;
+                case 'Evacuate':
+                    desc.innerText = "Moving all logical shards to an alternative stable region cluster.";
+                    controls.innerHTML = `
+                        <div class="control-group">
+                            <label style="font-size: 0.75rem; font-weight: 800; color: #64748b; display: block; margin-bottom: 10px; text-transform: uppercase;">Target Region Node</label>
+                            <select class="form-control" style="width: 100%; border-radius: 6px; border-color: #e2e8f0;">
+                                <option>EU-CENTRAL-1 (STABLE)</option>
+                                <option>AP-NORTHEAST-1 (LOCKED)</option>
+                                <option>SA-EAST-1 (AVAILABLE)</option>
+                            </select>
+                        </div>
+                    `;
+                    break;
+                case 'Modify':
+                    desc.innerText = "Adjusting isolation parameters and hardware entitlement mapping.";
+                    controls.innerHTML = `
+                        <div class="control-group">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                <label style="font-size: 0.75rem; font-weight: 800; color: #64748b; text-transform: uppercase;">IOPS Priority</label>
+                                <span style="font-size: 0.7rem; font-weight: 800; color: var(--color-secondary);">80%</span>
+                            </div>
+                            <input type="range" class="form-control" style="width: 100%;" min="1" max="100" value="80">
+                        </div>
+                    `;
+                    break;
+                case 'Audit':
+                    desc.innerText = "Running deep-packet inspection and state consistency checksums.";
+                    controls.innerHTML = `
+                        <div class="control-group">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div class="status-dot" style="background: var(--color-secondary);"></div>
+                                <span style="font-size: 0.8rem; font-weight: 600; color: #1e293b;">Validation Sequence Ready</span>
+                            </div>
+                            <p style="font-size: 0.75rem; color: #64748b; margin-top: 8px;">Comprehensive scan of tnt_${tenantId.split('_')[1]} shard integrity.</p>
+                        </div>
+                    `;
+                    break;
+                case 'Quarantine':
+                    desc.innerText = "Severing all ingress/egress vectors. Absolute isolation.";
+                    controls.innerHTML = `
+                        <div class="control-group" style="border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.05);">
+                            <div style="color: #ef4444; font-weight: 800; font-size: 0.8rem; margin-bottom: 5px;">⚠️ SECURITY ALERT</div>
+                            <div style="font-size: 0.75rem; color: #ef4444; font-weight: 600;">This operation will terminate all session vectors and lock-down the tenant data plane.</div>
+                        </div>
+                    `;
+                    runBtn.style.background = '#ef4444';
+                    runBtn.style.borderColor = '#ef4444';
+                    break;
+            }
+
+            document.getElementById('action-panel').classList.add('active');
+        }
+
+        function closePanel() {
+            document.getElementById('action-panel').classList.remove('active');
+        }
+
+        function runAction() {
+            const logs = document.getElementById('mt-logs');
+            const logEntry = document.createElement('div');
+            logEntry.style.marginBottom = '5px';
+            logEntry.innerHTML = `<span style="color: #94a3b8;">[${new Date().toLocaleTimeString()}]</span> <span style="color: var(--color-secondary);">SYS_EXEC</span>: Running ${currentAction} on ${currentTenant.name}...`;
+            logs.appendChild(logEntry);
+
+            setTimeout(() => {
+                const finishLog = document.createElement('div');
+                finishLog.style.marginBottom = '5px';
+                finishLog.innerHTML = `<span style="color: #94a3b8;">[${new Date().toLocaleTimeString()}]</span> <span style="color: var(--color-success);">SEC_CONFIRM</span>: ${currentAction} COMPLETE. Ref: ${Math.random().toString(36).substring(7).toUpperCase()}`;
+                logs.appendChild(finishLog);
+                logs.scrollTop = logs.scrollHeight;
+            }, 1200);
+
+            closePanel();
+        }
+    </script>
+
+
+</body>
+
+</html>

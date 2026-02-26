@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Analytics | APEX-LMS</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/admin-portal.css">
+    <style>
+        .radar-chart {
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            border: 2px dashed var(--color-admin-border);
+            position: relative;
+            margin: 0 auto;
+        }
+        .radar-line {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 150px;
+            height: 2px;
+            background: linear-gradient(to right, transparent, var(--color-admin-secondary));
+            transform-origin: 0 0;
+            animation: radar-sweep 4s linear infinite;
+        }
+        @keyframes radar-sweep {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+
+<body data-current-role="admin">
+
+    <div class="dashboard-layout">
+        <header class="admin-header">
+            <div class="header-main">
+                <a href="dashboard.html" class="brand">APEX<span>LMS</span></a>
+                <div class="tenant-badge">Acme Global Inc.</div>
+                <div class="user-profile"><div class="profile-avatar">AA</div></div>
+            </div>
+            <nav class="admin-nav">
+                <a href="dashboard.html" class="nav-item">📊 Dashboard Overview</a>
+                <a href="content-studio.html" class="nav-item">🔨 Content Studio</a>
+                <a href="course-inventory.html" class="nav-item">📚 Course Inventory</a>
+                <a href="learner-cohorts.html" class="nav-item">👥 Learner Cohorts</a>
+                <a href="question-library.html" class="nav-item">🧩 Question Library</a>
+                <a href="analytics.html" class="nav-item active">📈 Advanced Analytics</a>
+            </nav>
+        </header>
+
+        <main class="main-scroll">
+            <div class="admin-grid">
+                
+                <div class="col-span-8 kpi-card">
+                    <h3>Predictive Success Trajectory</h3>
+                    <p style="font-size: 0.8rem; color: var(--color-admin-muted); margin-bottom: 24px;">Projected Certification Completion vs. Enrollment (Next 90 Days)</p>
+                    <div style="height: 300px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0; position: relative; overflow: hidden;">
+                        <svg width="100%" height="100%" viewBox="0 0 800 300" preserveAspectRatio="none">
+                            <path d="M0,250 Q100,220 200,180 T400,120 T600,60 T800,20" fill="none" stroke="var(--color-admin-secondary)" stroke-width="3" />
+                            <path d="M0,280 Q150,250 300,220 T600,150 T800,100" fill="none" stroke="var(--color-admin-muted)" stroke-width="2" stroke-dasharray="8,4" />
+                        </svg>
+                        <div style="position: absolute; bottom: 20px; left: 20px; font-size: 0.7rem; color: var(--color-admin-muted);">
+                            <span style="display:inline-block; width:10px; height:2px; background:var(--color-admin-secondary); vertical-align:middle; margin-right:5px;"></span> Projected Certs
+                            <span style="display:inline-block; width:10px; height:2px; background:var(--color-admin-muted); vertical-align:middle; margin-left:15px; margin-right:5px;"></span> Gross Enrollments
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-span-4 kpi-card flex flex-col items-center justify-center">
+                    <h3 style="margin-bottom: 30px;">Learning Velocity Radar</h3>
+                    <div class="radar-chart">
+                        <div class="radar-line"></div>
+                        <div style="position: absolute; top: -20px; left: 50%; transform: translateX(-50%); font-size: 0.75rem; font-weight: 800;">TECH</div>
+                        <div style="position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%); font-size: 0.75rem; font-weight: 800;">SALES</div>
+                        <div style="position: absolute; top: 50%; right: -40px; transform: translateY(-50%); font-size: 0.75rem; font-weight: 800;">LEADERSHIP</div>
+                        <div style="position: absolute; top: 50%; left: -40px; transform: translateY(-50%); font-size: 0.75rem; font-weight: 800;">COMPLIANCE</div>
+                    </div>
+                </div>
+
+                <div class="col-span-6 kpi-card">
+                    <h3>Resource ROI Distribution</h3>
+                    <div class="flex flex-col gap-md" style="margin-top: 20px;">
+                        <div>
+                            <div class="flex justify-between" style="font-size: 0.8rem; margin-bottom: 5px;">
+                                <span>Infrastructure Efficiency</span>
+                                <span style="font-weight: 800;">94.2%</span>
+                            </div>
+                            <div style="height: 6px; background: #e2e8f0; border-radius: 3px;"><div style="width: 94%; height: 100%; background: var(--color-admin-secondary); border-radius: 3px;"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between" style="font-size: 0.8rem; margin-bottom: 5px;">
+                                <span>Content Engagement ROI</span>
+                                <span style="font-weight: 800;">8.4x</span>
+                            </div>
+                            <div style="height: 6px; background: #e2e8f0; border-radius: 3px;"><div style="width: 84%; height: 100%; background: var(--color-admin-accent); border-radius: 3px;"></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-span-6 kpi-card">
+                    <h3>Engagement by Region</h3>
+                    <table style="width: 100%; margin-top: 20px;">
+                        <tr style="font-size: 0.8rem; border-bottom: 1px solid #f1f5f9;">
+                            <td style="padding: 10px 0;">North America</td>
+                            <td style="padding: 10px 0; text-align: right; font-weight: 800;">4.2k Active</td>
+                        </tr>
+                        <tr style="font-size: 0.8rem; border-bottom: 1px solid #f1f5f9;">
+                            <td style="padding: 10px 0;">EMEA Central</td>
+                            <td style="padding: 10px 0; text-align: right; font-weight: 800;">2.8k Active</td>
+                        </tr>
+                        <tr style="font-size: 0.8rem;">
+                            <td style="padding: 10px 0;">APAC South</td>
+                            <td style="padding: 10px 0; text-align: right; font-weight: 800;">1.4k Active</td>
+                        </tr>
+                    </table>
+                </div>
+
+            </div>
+        </main>
+    </div>
+</body>
+</html>

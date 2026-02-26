@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Macro Analytics | APEX-LMS</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/super-admin.css">
+    <style>
+        .analytics-hero {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: white;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: var(--space-lg);
+        }
+
+        .chart-container {
+            height: 300px;
+            display: flex;
+            align-items: flex-end;
+            gap: 15px;
+            padding: 20px 0;
+            border-bottom: 2px solid #f1f5f9;
+            position: relative;
+        }
+
+        .bar-wrap {
+            flex: 1;
+            height: 100%;
+            display: flex;
+            align-items: flex-end;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .bar {
+            width: 80%;
+            background: linear-gradient(to top, var(--color-secondary), #38bdf8);
+            border-radius: 4px 4px 0 0;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .bar:hover {
+            filter: brightness(1.2);
+            transform: scaleX(1.1);
+        }
+
+        .bar-label {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--color-text-muted);
+        }
+
+        .telemetry-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-lg);
+        }
+
+        .tel-card {
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--color-border);
+        }
+
+        .tel-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            margin-bottom: 10px;
+        }
+
+        .tel-val {
+            font-weight: 800;
+            color: var(--color-primary-dark);
+        }
+
+        .heat-map {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 4px;
+        }
+
+        .heat-cell {
+            aspect-ratio: 1;
+            border-radius: 2px;
+            background: #f1f5f9;
+            transition: all 0.2s;
+        }
+
+        .heat-cell:hover {
+            transform: scale(1.5);
+            z-index: 10;
+            cursor: crosshair;
+        }
+
+        .heat-high {
+            background: var(--color-secondary);
+            box-shadow: 0 0 5px var(--color-secondary);
+        }
+
+        .heat-mid {
+            background: #7dd3fc;
+        }
+
+        .heat-low {
+            background: #e0f2fe;
+        }
+
+        @media (max-width: 1024px) {
+            .telemetry-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Tooltip System */
+        .dashboard-tooltip {
+            position: fixed;
+            background: #0f172a;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s, transform 0.1s;
+            z-index: 1000;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            min-width: 180px;
+        }
+
+        .tooltip-header {
+            font-weight: 800;
+            color: var(--color-secondary);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 4px;
+        }
+
+        .tooltip-row {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 4px;
+        }
+
+        .tooltip-label {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .tooltip-value {
+            font-weight: 700;
+            color: white;
+        }
+    </style>
+</head>
+
+<body data-current-role="superadmin">
+
+    <div id="tooltip" class="dashboard-tooltip"></div>
+
+    <div class="dashboard-layout">
+        <header class="orchestrator-header">
+            <div class="header-main">
+                <a href="../super-admin.html" class="brand">APEX<span>SaaS</span></a>
+                <div class="status-badge">
+                    <div class="status-dot"></div> Analytics: Live Telemetry
+                </div>
+                <div class="user-profile">
+                    <div class="profile-info hide-mobile">
+                        <div class="profile-name">Root Admin</div>
+                        <div class="profile-role">Systems Controller</div>
+                    </div>
+                    <div class="profile-avatar">RA</div>
+                    <button class="btn btn-outline" style="color: white; border-color: rgba(255,255,255,0.2);"
+                        onclick="window.location.href='../login.html'">Logout</button>
+                </div>
+            </div>
+            <nav class="infra-nav">
+                <a href="architectural-command.html" class="nav-item">⛁ Architectural Command</a>
+                <a href="multi-tenancy-engine.html" class="nav-item">🏢 Multi-Tenancy Engine</a>
+                <a href="macro-analytics.html" class="nav-item active">📈 Macro Analytics</a>
+                <a href="security-iam.html" class="nav-item">🔒 Security & IAM Proxy</a>
+            </nav>
+        </header>
+
+        <main class="main-scroll" style="background: #f1f5f9;">
+            <div class="dashboard-grid">
+                <div class="col-span-12 analytics-hero animate-fade-in-up">
+                    <div class="flex justify-between align-center">
+                        <div>
+                            <h2 style="margin:0; color: white; font-size: 2rem;">Macro Infrastructure Analytics</h2>
+                            <p style="color: rgba(255,255,255,0.6);">Regional Traffic Projections, Cost Distribution &
+                                System Lifecycle Telemetry</p>
+                        </div>
+                        <div class="flex gap-md">
+                            <div class="card"
+                                style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); padding: 10px 20px;">
+                                <div style="font-size: 0.7rem; color: rgba(255,255,255,0.4); font-weight: 800;">
+                                    PROJECTED SAVINGS</div>
+                                <div style="font-size: 1.2rem; font-weight: 900; color: var(--color-success);">
+                                    $142.4k/mo</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Traffic Vector -->
+                <div class="col-span-8 card animate-fade-in-up delay-100">
+                    <div class="flex justify-between align-center" style="margin-bottom: 20px;">
+                        <div>
+                            <h3 style="margin:0;">Global Traffic Ingress Vector (Real-Time)</h3>
+                            <p class="text-muted" style="font-size: 0.8rem;">Current Throughput: 8.42 Gbps across 14
+                                global ingress points</p>
+                        </div>
+                        <div class="flex gap-sm">
+                            <span class="badge badge-primary">INTERVAL: 1s</span>
+                            <span class="badge badge-success">SENSORS: ARMORED</span>
+                            <span class="badge" style="background: var(--color-secondary); color: white;">PEAK LOAD:
+                                92%</span>
+                        </div>
+                    </div>
+
+                    <div class="chart-container" id="traffic-chart" style="height: 350px; border-bottom: none; align-items: flex-end; justify-content: space-between; padding: 20px 10px;">
+                        <!-- Dynamic bars injected via JS -->
+                    </div>
+
+                    <div class="flex justify-between"
+                        style="margin-top: 20px; font-size: 0.7rem; font-weight: 700; color: #64748b;">
+                        <span>00:00 (PST)</span>
+                        <span>04:00</span>
+                        <span>08:00</span>
+                        <span>12:00</span>
+                        <span>16:00</span>
+                        <span>20:00</span>
+                        <span>LIVE (NOW)</span>
+                    </div>
+                </div>
+
+                <!-- Load Heatmap -->
+                <div class="col-span-4 card animate-fade-in-up delay-100">
+                    <div class="flex justify-between align-center" style="margin-bottom: 20px;">
+                        <h3 style="margin:0;">Compute Density Matrix</h3>
+                        <span class="badge badge-primary" style="font-size: 0.6rem;">144 EDGES</span>
+                    </div>
+                    <p class="text-muted" style="font-size: 0.75rem; margin-bottom: 15px;">Real-time IOPS & CPU
+                        saturation across the distributed edge network.</p>
+                    <div class="heat-map" id="heat-map"></div>
+                    <div class="flex justify-between" style="margin-top: 20px;">
+                        <div class="flex align-center gap-xs">
+                            <div class="heat-cell heat-low" style="width: 12px; height: 12px;"></div>
+                            <span style="font-size: 0.65rem; font-weight: 700;">IDLE</span>
+                        </div>
+                        <div class="flex align-center gap-xs">
+                            <div class="heat-cell heat-mid" style="width: 12px; height: 12px;"></div>
+                            <span style="font-size: 0.65rem; font-weight: 700;">NOMINAL</span>
+                        </div>
+                        <div class="flex align-center gap-xs">
+                            <div class="heat-cell heat-high" style="width: 12px; height: 12px;"></div>
+                            <span style="font-size: 0.65rem; font-weight: 700;">SATURATED</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Regional Telemetry Row -->
+                <div class="col-span-12 telemetry-grid animate-fade-in-up delay-200">
+                    <div class="tel-card">
+                        <div class="flex justify-between align-center" style="margin-bottom: 15px;">
+                            <h4 style="margin: 0;">US-EAST-01</h4>
+                            <span class="badge badge-success">NODE_UP</span>
+                        </div>
+                        <div class="tel-row"><span>Ingress</span><span class="tel-val">4.2 Gbps</span></div>
+                        <div class="tel-row"><span>Error Rate</span><span class="tel-val"
+                                style="color: var(--color-success);">0.001%</span></div>
+                        <div class="tel-row"><span>CPU Saturation</span><span class="tel-val">78%</span></div>
+                        <div class="tel-row"><span>Active Shards</span><span class="tel-val">48</span></div>
+                        <div style="height: 6px; background: #f1f5f9; border-radius: 3px; margin-top: 15px;">
+                            <div
+                                style="width: 78%; height: 100%; background: linear-gradient(90deg, var(--color-secondary), #38bdf8); border-radius: 3px;">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tel-card">
+                        <div class="flex justify-between align-center" style="margin-bottom: 15px;">
+                            <h4 style="margin: 0;">EU-CENTRAL-01</h4>
+                            <span class="badge badge-success">NODE_UP</span>
+                        </div>
+                        <div class="tel-row"><span>Ingress</span><span class="tel-val">3.1 Gbps</span></div>
+                        <div class="tel-row"><span>Error Rate</span><span class="tel-val"
+                                style="color: var(--color-success);">0.000%</span></div>
+                        <div class="tel-row"><span>CPU Saturation</span><span class="tel-val">42%</span></div>
+                        <div class="tel-row"><span>Active Shards</span><span class="tel-val">32</span></div>
+                        <div style="height: 6px; background: #f1f5f9; border-radius: 3px; margin-top: 15px;">
+                            <div
+                                style="width: 42%; height: 100%; background: linear-gradient(90deg, var(--color-secondary), #38bdf8); border-radius: 3px;">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tel-card" style="border-left: 4px solid var(--color-warning);">
+                        <div class="flex justify-between align-center" style="margin-bottom: 15px;">
+                            <h4 style="margin: 0;">SA-EAST-01</h4>
+                            <span class="badge badge-warning">DEGRADED</span>
+                        </div>
+                        <div class="tel-row"><span>Ingress</span><span class="tel-val">0.9 Gbps</span></div>
+                        <div class="tel-row"><span>Error Rate</span><span class="tel-val"
+                                style="color: var(--color-warning);">0.142%</span></div>
+                        <div class="tel-row"><span>CPU Saturation</span><span class="tel-val">89%</span></div>
+                        <div class="tel-row"><span>Active Shards</span><span class="tel-val">12</span></div>
+                        <div style="height: 6px; background: #f1f5f9; border-radius: 3px; margin-top: 15px;">
+                            <div style="width: 89%; height: 100%; background: var(--color-error); border-radius: 3px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cost & Efficiency -->
+                <div class="col-span-12 card animate-fade-in-up delay-300">
+                    <div class="flex justify-between align-center" style="margin-bottom: 25px;">
+                        <div>
+                            <h3 style="margin:0;">Infrastructure Efficiency & Cost Scaling</h3>
+                            <p class="text-muted" style="font-size: 0.8rem;">Resource utilization vs. Operating
+                                expenditure (30D Projection)</p>
+                        </div>
+                        <div class="flex gap-sm">
+                            <span class="badge"
+                                style="background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid #10b981;">EFFICIENCY:
+                                <span id="stat-efficiency" data-target="94.2">0</span>%</span>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 30px;">
+                        <div>
+                            <div
+                                style="font-size: 0.7rem; font-weight: 800; color: #64748b; margin-bottom: 10px; text-transform: uppercase;">
+                                Compute Expenditure</div>
+                            <div style="font-size: 1.8rem; font-weight: 900; color: var(--color-primary-dark);">$<span id="stat-compute" data-target="412.8">0</span>k
+                            </div>
+                            <div style="font-size: 0.7rem; color: #10b981; font-weight: 700; margin-top: 5px;">↓ 4.2%
+                                Optimization</div>
+                        </div>
+                        <div>
+                            <div
+                                style="font-size: 0.7rem; font-weight: 800; color: #64748b; margin-bottom: 10px; text-transform: uppercase;">
+                                Edge Bandwidth</div>
+                            <div style="font-size: 1.8rem; font-weight: 900; color: var(--color-primary-dark);">$<span id="stat-bandwidth" data-target="142.2">0</span>k
+                            </div>
+                            <div style="font-size: 0.7rem; color: #ef4444; font-weight: 700; margin-top: 5px;">↑ 12.1%
+                                Traffic growth</div>
+                        </div>
+                        <div>
+                            <div
+                                style="font-size: 0.7rem; font-weight: 800; color: #64748b; margin-bottom: 10px; text-transform: uppercase;">
+                                Storage Persistence</div>
+                            <div style="font-size: 1.8rem; font-weight: 900; color: var(--color-primary-dark);">$<span id="stat-storage" data-target="84.5">0</span>k
+                            </div>
+                            <div style="font-size: 0.7rem; color: #64748b; font-weight: 700; margin-top: 5px;">→ Stable
+                                (S3/Glacier)</div>
+                        </div>
+                        <div>
+                            <div
+                                style="font-size: 0.7rem; font-weight: 800; color: #64748b; margin-bottom: 10px; text-transform: uppercase;">
+                                Managed Services</div>
+                            <div style="font-size: 1.8rem; font-weight: 900; color: var(--color-primary-dark);">$<span id="stat-managed" data-target="62.1">0</span>k
+                            </div>
+                            <div style="font-size: 0.7rem; color: #10b981; font-weight: 700; margin-top: 5px;">↓ 2.1%
+                                Reserved instances</div>
+                        </div>
+                    </div>
+
+                    <div
+                        style="margin-top: 30px; padding: 20px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
+                        <h4 style="margin: 0 0 10px 0; font-size: 0.9rem;">Lifecycle Resource Recommendation</h4>
+                        <p class="text-muted" style="font-size: 0.8rem; margin: 0;">Predicted traffic surge in
+                            APAC-SOUTH region. Recommendation: Auto-scale edge shards by 40% and enable BGP multi-homing
+                            to mitigate latency spikes (Estimated cost impact: +$4.2k/mo).</p>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Heatmap generation
+        const map = document.getElementById('heat-map');
+        const tooltip = document.getElementById('tooltip');
+        
+        const institutions = ["Stanford University", "MIT OpenCourse", "Khan Academy", "Global Ed", "Nexus Academy", "Apex Learning", "Skyline University", "Pioneer Schools"];
+        const operations = ["Shard Balancing", "Content Reindexing", "Media Encryption", "Role-Based Sync", "Audit Sequencing", "Resource Shielding"];
+
+        for (let i = 0; i < 144; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'heat-cell';
+            const r = Math.random();
+            if (r > 0.8) cell.classList.add('heat-high');
+            else if (r > 0.5) cell.classList.add('heat-mid');
+            else if (r > 0.3) cell.classList.add('heat-low');
+            
+            // Interaction for Matrix
+            cell.addEventListener('mouseenter', (e) => {
+                const inst = institutions[Math.floor(Math.random() * institutions.length)];
+                const op = operations[Math.floor(Math.random() * operations.length)];
+                const latency = (Math.random() * 20 + 2).toFixed(1) + "ms";
+                
+                tooltip.innerHTML = `
+                    <div class="tooltip-header">Edge Node #${i + 1}</div>
+                    <div class="tooltip-row"><span class="tooltip-label">Tenant:</span> <span class="tooltip-value">${inst}</span></div>
+                    <div class="tooltip-row"><span class="tooltip-label">Operation:</span> <span class="tooltip-value">${op}</span></div>
+                    <div class="tooltip-row"><span class="tooltip-label">Latency:</span> <span class="tooltip-value">${latency}</span></div>
+                    <div class="tooltip-row"><span class="tooltip-label">Integrity:</span> <span class="tooltip-value" style="color: #10b981;">SECURE</span></div>
+                `;
+                tooltip.style.opacity = '1';
+            });
+            
+            cell.addEventListener('mouseleave', () => {
+                tooltip.style.opacity = '0';
+            });
+
+            map.appendChild(cell);
+        }
+
+        // Mouse follow logic
+        document.addEventListener('mousemove', (e) => {
+            if (tooltip.style.opacity === '1') {
+                tooltip.style.left = (e.clientX + 15) + 'px';
+                tooltip.style.top = (e.clientY + 15) + 'px';
+            }
+        });
+
+        // Animation logic
+        function animateValue(obj, start, end, duration, format = 'float') {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const value = (progress * (end - start) + start);
+
+                if (format === 'int') {
+                    obj.innerHTML = Math.floor(value).toLocaleString();
+                } else {
+                    obj.innerHTML = value.toFixed(1);
+                }
+
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const efficiency = document.getElementById('stat-efficiency');
+            const compute = document.getElementById('stat-compute');
+            const bandwidth = document.getElementById('stat-bandwidth');
+            const storage = document.getElementById('stat-storage');
+            const managed = document.getElementById('stat-managed');
+
+            setTimeout(() => {
+                animateValue(efficiency, 0, parseFloat(efficiency.dataset.target), 1500);
+                animateValue(compute, 0, parseFloat(compute.dataset.target), 1500);
+                animateValue(bandwidth, 0, parseFloat(bandwidth.dataset.target), 1500);
+                animateValue(storage, 0, parseFloat(storage.dataset.target), 1500);
+                animateValue(managed, 0, parseFloat(managed.dataset.target), 1500);
+            }, 500);
+        });
+
+        // Dynamic Traffic Chart
+        const chart = document.getElementById('traffic-chart');
+        const barCount = 14;
+        const bars = [];
+        
+        const learningActivities = ["Video Streaming", "Active Exams", "Library Access", "Canvas Interaction", "Discussion Sync"];
+
+        // Initialize bars
+        for (let i = 0; i < barCount; i++) {
+            const barWrap = document.createElement('div');
+            barWrap.className = 'bar-wrap';
+            
+            const bar = document.createElement('div');
+            bar.className = 'bar';
+            const initialHeight = Math.floor(Math.random() * 50) + 40;
+            bar.style.height = initialHeight + '%';
+            
+            barWrap.appendChild(bar);
+            chart.appendChild(barWrap);
+            bars.push(bar);
+
+            // Interaction for Bars
+            barWrap.addEventListener('mouseenter', () => {
+                const learners = (Math.random() * 5 + 1).toFixed(1) + "k";
+                const activity = learningActivities[Math.floor(Math.random() * learningActivities.length)];
+                const throughput = (Math.random() * 2 + 1).toFixed(2) + " Gbps";
+                
+                tooltip.innerHTML = `
+                    <div class="tooltip-header">Ingress Vector #${i + 1}</div>
+                    <div class="tooltip-row"><span class="tooltip-label">Live Learners:</span> <span class="tooltip-value">${learners}</span></div>
+                    <div class="tooltip-row"><span class="tooltip-label">Dominant Load:</span> <span class="tooltip-value">${activity}</span></div>
+                    <div class="tooltip-row"><span class="tooltip-label">Bandwidth:</span> <span class="tooltip-value">${throughput}</span></div>
+                `;
+                tooltip.style.opacity = '1';
+            });
+
+            barWrap.addEventListener('mouseleave', () => {
+                tooltip.style.opacity = '0';
+            });
+        }
+
+        // Randomly update bars every second
+        setInterval(() => {
+            bars.forEach(bar => {
+                const change = (Math.random() * 20) - 10;
+                let currentHeight = parseFloat(bar.style.height);
+                let newHeight = Math.max(30, Math.min(95, currentHeight + change));
+                bar.style.height = newHeight + '%';
+            });
+        }, 1000);
+    </script>
+</body>
+
+</html>

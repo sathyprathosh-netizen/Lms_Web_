@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Admin Hub | APEX-LMS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/super-admin.css">
+</head>
+
+<body data-current-role="superadmin">
+
+    <div class="dashboard-layout">
+        <header class="orchestrator-header">
+            <div class="header-main">
+                <a href="super-admin.html" class="brand">APEX<span>SaaS</span></a>
+                <div class="status-badge">
+                    <div class="status-dot"></div> ALL SYSTEMS NOMINAL
+                </div>
+                <div class="user-profile">
+                    <div class="profile-info hide-mobile">
+                        <div class="profile-name">Root Admin</div>
+                        <div class="profile-role">Systems Controller</div>
+                    </div>
+                    <div class="profile-avatar">RA</div>
+                    <button class="btn btn-outline" style="color: white; border-color: rgba(255,255,255,0.2);"
+                        onclick="window.location.href='login.html'">Logout</button>
+                </div>
+            </div>
+            <nav class="infra-nav">
+                <a href="super-admin/architectural-command.html" class="nav-item">⛁ Architectural Command</a>
+                <a href="super-admin/multi-tenancy-engine.html" class="nav-item">🏢 Multi-Tenancy Engine</a>
+                <a href="super-admin/macro-analytics.html" class="nav-item">📈 Macro Analytics</a>
+                <a href="super-admin/security-iam.html" class="nav-item">🔒 Security & IAM Proxy</a>
+            </nav>
+        </header>
+
+        <main class="main-scroll" style="background: #f1f5f9;">
+            <div class="dashboard-grid">
+                <!-- Global Command Shell -->
+                <div class="col-span-12 card animate-fade-in-up"
+                    style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: white; border: 1px solid rgba(255,255,255,0.05);">
+                    <div class="flex justify-between align-center">
+                        <div>
+                            <h2 style="margin: 0; font-size: 2rem; color: white;">Global Orchestration Shell</h2>
+                            <p style="color: rgba(255,255,255,0.6);">Master Control Interface for APEX Distributed
+                                Infrastructure</p>
+                        </div>
+                        <div class="status-badge" style="padding: 10px 20px; font-size: 0.9rem;">
+                            <div class="status-dot"></div> ALL SYSTEMS NOMINAL
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4 Core Module Cards - High Density -->
+                <a href="super-admin/architectural-command.html"
+                    class="col-span-6 card animate-fade-in-up delay-100 hub-card">
+                    <div class="flex justify-between">
+                        <h3 style="margin:0;">⛁ Architectural Command</h3>
+                        <span style="font-size: 1.2rem;">↗</span>
+                    </div>
+                    <div class="hub-stat">14 <span class="hub-unit">REGIONS</span></div>
+                    <p class="text-muted">Global node orchestration, region health & system-wide integrity locks. 100%
+                        consensus stability.</p>
+                    <div class="hub-mini-grid">
+                        <div class="hub-mini-stat"><span>Latency</span><span>14ms</span></div>
+                        <div class="hub-mini-stat"><span>Uptime</span><span>99.99%</span></div>
+                    </div>
+                </a>
+
+                <a href="super-admin/multi-tenancy-engine.html"
+                    class="col-span-6 card animate-fade-in-up delay-100 hub-card">
+                    <div class="flex justify-between">
+                        <h3 style="margin:0;">🏢 Multi-Tenancy Engine</h3>
+                        <span style="font-size: 1.2rem;">↗</span>
+                    </div>
+                    <div class="hub-stat">1,284 <span class="hub-unit">TENANTS</span></div>
+                    <p class="text-muted">Isolation Level 4 enforced. Resource shielding & dynamic shard allocation for
+                        enterprise clusters.</p>
+                    <div class="hub-mini-grid">
+                        <div class="hub-mini-stat"><span>Isolation</span><span>Active</span></div>
+                        <div class="hub-mini-stat"><span>Breaches</span><span>0</span></div>
+                    </div>
+                </a>
+
+                <a href="super-admin/macro-analytics.html"
+                    class="col-span-6 card animate-fade-in-up delay-200 hub-card">
+                    <div class="flex justify-between">
+                        <h3 style="margin:0;">📈 Macro Analytics</h3>
+                        <span style="font-size: 1.2rem;">↗</span>
+                    </div>
+                    <div class="hub-stat">8.4 <span class="hub-unit">GBPS</span></div>
+                    <p class="text-muted">Real-time traffic vectors, cost distribution & regional telemetry. Peak load
+                        management at 92% efficiency.</p>
+                    <div class="hub-mini-grid">
+                        <div class="hub-mini-stat"><span>Requests</span><span>12k/s</span></div>
+                        <div class="hub-mini-stat"><span>Efficiency</span><span>94%</span></div>
+                    </div>
+                </a>
+
+                <a href="super-admin/security-iam.html" class="col-span-6 card animate-fade-in-up delay-200 hub-card">
+                    <div class="flex justify-between">
+                        <h3 style="margin:0;">🔒 Security & IAM Proxy</h3>
+                        <span style="font-size: 1.2rem;">↗</span>
+                    </div>
+                    <div class="hub-stat" style="color: var(--color-error);">42.1k <span class="hub-unit">DROPPED</span>
+                    </div>
+                    <p class="text-muted">Identity sentinel, zero-trust tunneling & threat mitigation. Automated IP-ban
+                        sequence active.</p>
+                    <div class="hub-mini-grid">
+                        <div class="hub-mini-stat"><span>Threats</span><span>Elevated</span></div>
+                        <div class="hub-mini-stat"><span>Shield</span><span>100%</span></div>
+                    </div>
+                </a>
+            </div>
+        </main>
+    </div>
+
+    <style>
+        .hub-card {
+            text-decoration: none;
+            transition: all 0.3s;
+            cursor: pointer;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .hub-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--color-secondary);
+            background: #fff;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .hub-stat {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--color-primary-dark);
+            line-height: 1;
+        }
+
+        .hub-unit {
+            font-size: 0.9rem;
+            color: var(--color-text-muted);
+            font-weight: 700;
+        }
+
+        .hub-mini-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: auto;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 15px;
+        }
+
+        .hub-mini-stat {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .hub-mini-stat span:first-child {
+            color: var(--color-text-muted);
+        }
+
+        .hub-mini-stat span:last-child {
+            color: var(--color-primary-dark);
+        }
+
+        @media (max-width: 1024px) {
+            .col-span-6 {
+                grid-column: span 12;
+            }
+
+            .hub-stat {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</body>
+
+</html>

@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APEX-LMS | Enterprise Learning Management</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* Landing Page Specific Styles */
+        body {
+            background-color: var(--color-surface);
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-md) var(--space-xl);
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--glass-border);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .logo {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--color-primary-dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: -1px;
+        }
+
+        .logo span {
+            color: var(--color-secondary);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: var(--space-xl);
+        }
+
+        .nav-links a {
+            color: var(--color-text-main);
+            font-weight: 600;
+        }
+
+        .nav-links a:hover {
+            color: var(--color-secondary);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding-top: 150px;
+            padding-bottom: 100px;
+            min-height: 95vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, var(--color-surface) 0%, #e0f2fe 100%);
+        }
+
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 55%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.8;
+            pointer-events: none;
+        }
+
+        .flow-line {
+            fill: none;
+            stroke: var(--color-primary);
+            stroke-width: 3;
+            stroke-dasharray: 1500;
+            stroke-dashoffset: 1500;
+            animation: drawFlow 5s ease-out forwards;
+            opacity: 0.3;
+        }
+
+        .flow-line-2 {
+            stroke: var(--color-secondary);
+            animation-delay: 1.5s;
+            opacity: 0.5;
+            stroke-width: 4;
+        }
+
+        .flow-line-3 {
+            stroke: var(--color-accent);
+            animation-delay: 2.5s;
+            stroke-width: 2;
+        }
+
+        @keyframes drawFlow {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 700px;
+        }
+
+        .hero h1 {
+            font-size: 4.5rem;
+            margin-bottom: var(--space-lg);
+            color: var(--color-primary-dark);
+            line-height: 1.1;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--color-text-muted);
+            margin-bottom: var(--space-2xl);
+            max-width: 600px;
+            line-height: 1.7;
+        }
+
+        /* Generic Section Styles */
+        .section-padding {
+            padding: var(--space-3xl) 0;
+        }
+
+        .bg-white {
+            background: white;
+        }
+
+        .bg-dark {
+            background: var(--color-primary-dark);
+            color: white;
+        }
+
+        .bg-dark h2,
+        .bg-dark h3 {
+            color: white;
+        }
+
+        .bg-dark p {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: var(--space-3xl);
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .section-header h2 {
+            font-size: 3rem;
+            margin-bottom: var(--space-md);
+        }
+
+        .section-header p {
+            font-size: 1.15rem;
+            color: var(--color-text-muted);
+        }
+
+        /* Feature Cards */
+        .feature-card {
+            padding: var(--space-2xl);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .feature-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: var(--br-xl);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-bottom: var(--space-xl);
+        }
+
+        .icon-blue {
+            background: rgba(6, 182, 212, 0.1);
+            color: var(--color-secondary-hover);
+        }
+
+        .icon-indigo {
+            background: rgba(55, 48, 163, 0.1);
+            color: var(--color-primary-light);
+        }
+
+        .icon-lime {
+            background: rgba(163, 230, 53, 0.1);
+            color: #65a30d;
+        }
+
+        .feature-card h3 {
+            margin-bottom: var(--space-md);
+            font-size: 1.5rem;
+        }
+
+        .feature-card p {
+            color: var(--color-text-muted);
+            flex: 1;
+        }
+
+        .feature-card ul {
+            margin-top: var(--space-md);
+            padding-left: var(--space-xl);
+            color: var(--color-text-muted);
+        }
+
+        .feature-card li {
+            margin-bottom: var(--space-xs);
+        }
+
+        /* Deep Content Section - Split View */
+        .split-section {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3xl);
+            margin-bottom: var(--space-3xl);
+        }
+
+        .split-section.reverse {
+            flex-direction: row-reverse;
+        }
+
+        .split-content {
+            flex: 1;
+        }
+
+        .split-content h3 {
+            font-size: 2.25rem;
+            margin-bottom: var(--space-md);
+        }
+
+        .split-content p {
+            font-size: 1.1rem;
+            color: var(--color-text-muted);
+            margin-bottom: var(--space-lg);
+            line-height: 1.7;
+        }
+
+        .split-visual {
+            flex: 1;
+            position: relative;
+            background: linear-gradient(135deg, #e0f2fe 0%, #f3f4f6 100%);
+            border-radius: var(--br-xl);
+            min-height: 400px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--color-border);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mock-ui {
+            width: 80%;
+            height: 80%;
+            background: white;
+            border-radius: var(--br-md);
+            box-shadow: var(--shadow-md);
+            padding: var(--space-lg);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            animation: float 6s infinite ease-in-out;
+        }
+
+        .ui-line {
+            height: 12px;
+            background: var(--color-surface);
+            border-radius: 6px;
+        }
+
+        .ui-box {
+            height: 60px;
+            background: rgba(6, 182, 212, 0.1);
+            border-radius: var(--br-md);
+        }
+
+        /* Call To Action */
+        .cta-section {
+            background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 100%);
+            color: white;
+            text-align: center;
+            padding: 100px 0;
+            position: relative;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar animate-fade-in-up">
+        <div class="logo">APEX<span>LMS</span></div>
+        <div class="nav-links hide-mobile">
+            <a href="#features">Features</a>
+            <a href="#roles">Architecture</a>
+            <a href="#enterprise">Enterprise</a>
+        </div>
+        <div class="nav-actions flex items-center gap-md">
+            <a href="login.html" class="btn btn-outline hide-mobile" style="background: white;">Access Sandbox
+                Portal</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <svg class="hero-bg" viewBox="0 0 500 800" preserveAspectRatio="none">
+            <path class="flow-line" d="M -100,100 C 100,100 200,300 500,200" />
+            <path class="flow-line flow-line-2" d="M -100,300 C 200,300 300,500 600,400" />
+            <path class="flow-line flow-line-3" d="M 0,600 C 200,600 200,800 500,700" />
+
+            <!-- Animated nodes -->
+            <circle cx="200" cy="225" r="8" fill="var(--color-secondary)">
+                <animate attributeName="opacity" values="0.2;1;0.2" dur="3s" repeatCount="indefinite" />
+                <animate attributeName="r" values="6;10;6" dur="3s" repeatCount="indefinite" />
+            </circle>
+            <circle cx="350" cy="460" r="10" fill="var(--color-primary-light)">
+                <animate attributeName="opacity" values="0.2;1;0.2" dur="4s" repeatCount="indefinite" />
+            </circle>
+        </svg>
+
+        <div class="container flex items-center">
+            <div class="hero-content animate-fade-in-left">
+                <div class="badge badge-success"
+                    style="margin-bottom: var(--space-md); font-size: 0.9rem; padding: 0.5rem 1rem;">Version 4.0 -
+                    Enterprise Edition Ready</div>
+                <h1>The Operating System for Modern Learning</h1>
+                <p>Deliver compliant training, monetize sprawling course catalogs, and scale your learning ecosystem
+                    with our deeply integrated, white-label ready platform designed for high-growth enterprises.</p>
+                <div class="flex gap-md" style="margin-top: var(--space-xl);">
+                    <a href="login.html" class="btn btn-primary"
+                        style="padding: 1.2rem 2.5rem; font-size: 1.15rem;">Enter Sales Demo</a>
+                    <a href="#roles" class="btn btn-outline"
+                        style="padding: 1.2rem 2.5rem; font-size: 1.15rem; background: rgba(255,255,255,0.5);">Explore
+                        Capabilities</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Value Propositions -->
+    <section id="features" class="section-padding bg-white">
+        <div class="container">
+            <div class="section-header" data-animate="animate-fade-in-up">
+                <div class="badge badge-primary" style="margin-bottom: var(--space-md);">Core Capabilities</div>
+                <h2>A Unified Learning Infrastructure</h2>
+                <p>APEX-LMS consolidates disparate learning tools into a single, cohesive ecosystem. Discover why top
+                    enterprises trust our architecture.</p>
+            </div>
+
+            <div class="grid grid-cols-3">
+                <div class="card feature-card delay-100" data-animate="animate-fade-in-up">
+                    <div class="feature-icon icon-blue">⚡</div>
+                    <h3>Frictionless Content Delivery</h3>
+                    <p>Deploy interactive SCORM packages, native video, and rigorous assessments instantly. Our
+                        edge-based delivery ensures that learners never experience buffering, regardless of geographic
+                        location or concurrent user load.</p>
+                    <ul>
+                        <li>Global CDN Integration</li>
+                        <li>Adaptive Bitrate Streaming</li>
+                        <li>Offline Sync Capabilities</li>
+                    </ul>
+                </div>
+
+                <div class="card feature-card delay-300" data-animate="animate-fade-in-up">
+                    <div class="feature-icon icon-indigo">🔒</div>
+                    <h3>Bank-Grade Compliance Security</h3>
+                    <p>Built from the ground up for highly regulated industries. Maintain SOC2 Type II compliance
+                        effortlessly with our rigid permission boundaries, automated audit trails, and encrypted data at
+                        rest and in transit.</p>
+                    <ul>
+                        <li>Automated Audit Logs</li>
+                        <li>Granular Role-Based Access Control (RBAC)</li>
+                        <li>Data Sovereignty Options</li>
+                    </ul>
+                </div>
+
+                <div class="card feature-card delay-500" data-animate="animate-fade-in-up">
+                    <div class="feature-icon icon-lime">📊</div>
+                    <h3>Actionable Growth Analytics</h3>
+                    <p>Go beyond basic completion rates. Our deep analytics engine tracks granular engagement metrics,
+                        drop-off predictors, and assessment validity scores to help you continuously refine your
+                        curriculum.</p>
+                    <ul>
+                        <li>Predictive Churn Modeling</li>
+                        <li>Module-Level Drop-off Tracking</li>
+                        <li>Customizable Dashboard Views</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Deep Dive: Roles -->
+    <section id="roles" class="section-padding">
+        <div class="container">
+            <div class="section-header" data-animate="animate-fade-in-up">
+                <h2>Role-Based Intelligence Architecture</h2>
+                <p>One platform, uniquely tailored interfaces. See how APEX adapts its entire UI and capability set
+                    based on the authenticated user's operational needs.</p>
+            </div>
+
+            <!-- Super Admin Split -->
+            <div class="split-section" data-animate="animate-fade-in-up">
+                <div class="split-content">
+                    <div class="badge badge-warning" style="margin-bottom: 10px;">The SaaS Control Layer</div>
+                    <h3>Super Administrator Interface</h3>
+                    <p>Govern your entire operation from a single pane of glass. The Super Admin interface provides
+                        god-mode capabilities for multi-tenant management.</p>
+                    <p>Designed for CTOs and Platform Administrators, this view allows for instantaneous white-labeling,
+                        whereby system colors and branding can be pushed to specific child-organizations in real-time.
+                        Review massive data rollups encompassing hundreds of thousands of learners and monitor
+                        infrastructure health metrics.</p>
+                    <a href="login.html" class="btn btn-outline" style="margin-top: 15px;">Demo Super Admin →</a>
+                </div>
+                <div class="split-visual delay-200" data-animate="animate-fade-in-right">
+                    <div class="mock-ui">
+                        <div class="flex justify-between items-center" style="margin-bottom: 20px;">
+                            <div style="font-weight: bold; font-size: 1.2rem; color: var(--color-primary-dark);">KPI
+                                Rollup</div>
+                            <div
+                                style="width: 40px; height: 40px; border-radius: 50%; background: var(--color-surface);">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2" style="gap: 10px;">
+                            <div class="ui-box"></div>
+                            <div class="ui-box" style="background: rgba(163, 230, 53, 0.2);"></div>
+                        </div>
+                        <div class="ui-line" style="width: 100%; margin-top: 20px;"></div>
+                        <div class="ui-line" style="width: 75%;"></div>
+                        <div class="ui-line" style="width: 90%;"></div>
+                        <div class="ui-line" style="width: 40%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin/Instructor Split -->
+            <div class="split-section reverse" data-animate="animate-fade-in-up">
+                <div class="split-content">
+                    <div class="badge badge-primary" style="margin-bottom: 10px;">The Course Creation Engine</div>
+                    <h3>Instructor & Assessor Dashboard</h3>
+                    <p>Empower your Subject Matter Experts (SMEs) with intuitive, drag-and-drop course authoring tools
+                        that require zero coding knowledge.</p>
+                    <p>The Instructor suite focuses purely on content and learner success. Construct complex learning
+                        paths with prerequisite logic, build dynamic assessment engines with randomized question banks,
+                        and monitor individual student progression through detailed cohort reports and grading rubrics.
+                    </p>
+                    <a href="login.html" class="btn btn-outline" style="margin-top: 15px;">Demo Instructor Layer →</a>
+                </div>
+                <div class="split-visual delay-200" data-animate="animate-fade-in-left">
+                    <div class="mock-ui" style="animation-delay: -3s;">
+                        <div class="ui-line"
+                            style="width: 40%; margin-bottom: 20px; height: 16px; background: var(--color-primary-light);">
+                        </div>
+                        <div
+                            style="border: 1px solid var(--color-border); border-radius: 8px; padding: 10px; margin-bottom: 10px; display: flex; gap: 10px; align-items: center;">
+                            <div
+                                style="width: 20px; height: 20px; background: var(--color-surface); border-radius: 4px;">
+                            </div>
+                            <div class="ui-line" style="width: 60%; margin: 0;"></div>
+                        </div>
+                        <div
+                            style="border: 1px solid var(--color-border); border-radius: 8px; padding: 10px; margin-bottom: 10px; display: flex; gap: 10px; align-items: center; border-color: var(--color-secondary);">
+                            <div
+                                style="width: 20px; height: 20px; background: var(--color-secondary); border-radius: 4px;">
+                            </div>
+                            <div class="ui-line" style="width: 80%; margin: 0;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Learner Split -->
+            <div class="split-section" data-animate="animate-fade-in-up">
+                <div class="split-content">
+                    <div class="badge badge-success" style="margin-bottom: 10px;">The Consumption Layer</div>
+                    <h3>Modern Learner Experience</h3>
+                    <p>Drive unprecedented engagement rates with a deeply immersive, distraction-free learning
+                        environment built for focus and retention.</p>
+                    <p>Learners benefit from cinematic course viewers, gamified progress tracking with achievement
+                        badges, and instantly generated cryptographic certificates upon completion. The UI is
+                        painstakingly engineered to reduce cognitive load, ensuring that the student's energy is spent
+                        entirely on the educational material.</p>
+                    <a href="login.html" class="btn btn-outline" style="margin-top: 15px;">Demo Learner Portal →</a>
+                </div>
+                <div class="split-visual delay-200" data-animate="animate-fade-in-right">
+                    <div class="mock-ui">
+                        <div
+                            style="width: 100%; height: 120px; background: var(--color-primary-dark); border-radius: var(--br-md); margin-bottom: 15px; position: relative; overflow: hidden;">
+                            <div
+                                style="position: absolute; bottom: 10px; left: 10px; right: 10px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px;">
+                                <div
+                                    style="width: 60%; height: 100%; background: var(--color-secondary); border-radius: 2px;">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex gap-md">
+                            <div
+                                style="width: 40px; height: 40px; border-radius: 50%; background: rgba(16, 185, 129, 0.2); border: 2px solid var(--color-success);">
+                            </div>
+                            <div
+                                style="width: 40px; height: 40px; border-radius: 50%; background: var(--color-surface);">
+                            </div>
+                            <div
+                                style="width: 40px; height: 40px; border-radius: 50%; background: var(--color-surface);">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Deep Enterprise Scale Section -->
+    <section id="enterprise" class="section-padding bg-dark">
+        <div class="container" style="text-align: center;" data-animate="animate-scale-in">
+            <h2 style="font-size: 3rem; margin-bottom: var(--space-md);">Built for Global Scale</h2>
+            <p style="font-size: 1.25rem; max-width: 800px; margin: 0 auto var(--space-3xl); line-height: 1.8;">
+                Whether you are training an internal workforce of 500 or selling B2B courses to 1M+ external partners,
+                APEX provides the infrastructure stability required by Fortune 500s.
+            </p>
+
+            <div class="grid grid-cols-4 gap-md">
+                <div style="text-align: center; border-right: 1px solid rgba(255,255,255,0.1);">
+                    <div
+                        style="font-size: 3.5rem; font-weight: 800; color: var(--color-secondary); margin-bottom: 10px;">
+                        99.9%</div>
+                    <div
+                        style="font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.7);">
+                        Uptime SLA</div>
+                </div>
+                <div style="text-align: center; border-right: 1px solid rgba(255,255,255,0.1);">
+                    <div style="font-size: 3.5rem; font-weight: 800; color: var(--color-accent); margin-bottom: 10px;">
+                        &lt;50ms</div>
+                    <div
+                        style="font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.7);">
+                        Global Latency</div>
+                </div>
+                <div style="text-align: center; border-right: 1px solid rgba(255,255,255,0.1);">
+                    <div
+                        style="font-size: 3.5rem; font-weight: 800; color: var(--color-secondary); margin-bottom: 10px;">
+                        SOC2</div>
+                    <div
+                        style="font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.7);">
+                        Type II Certified</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 3.5rem; font-weight: 800; color: var(--color-accent); margin-bottom: 10px;">
+                        API</div>
+                    <div
+                        style="font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.7);">
+                        Native Webhooks</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Final CTA -->
+    <section class="cta-section">
+        <!-- Background Ambient -->
+        <div
+            style="position: absolute; top: -50%; left: -10%; width: 500px; height: 500px; background: rgba(6, 182, 212, 0.2); filter: blur(100px); border-radius: 50%;">
+        </div>
+        <div
+            style="position: absolute; bottom: -50%; right: -10%; width: 500px; height: 500px; background: rgba(30, 27, 75, 0.4); filter: blur(100px); border-radius: 50%;">
+        </div>
+
+        <div class="container" style="position: relative; z-index: 1;" data-animate="animate-fade-in-up">
+            <h2 style="font-size: 3.5rem; margin-bottom: var(--space-lg);">Ready to transform your delivery?</h2>
+            <p
+                style="font-size: 1.25rem; opacity: 0.9; max-width: 600px; margin: 0 auto var(--space-2xl); line-height: 1.6;">
+                Don't just take our word for it. Step into the shoes of a Learner, Instructor, or Super Administrator in
+                our fully functional interactive sandbox environment.
+            </p>
+            <div class="flex justify-center gap-md">
+                <a href="login.html" class="btn btn-secondary"
+                    style="padding: 1.2rem 3rem; font-size: 1.2rem; border-radius: var(--br-xl);">Log In as Demo
+                    Role</a>
+            </div>
+
+            <div style="margin-top: var(--space-3xl); font-size: 0.9rem; color: rgba(255,255,255,0.5);">
+                © 2026 APEX Systems Inc. All rights reserved. Highly Confidential Demo.
+            </div>
+        </div>
+    </section>
+
+    <script src="js/script.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Catalog | APEX-LMS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* Catalog Specific Adjustments */
+        .catalog-hero {
+            background: linear-gradient(135deg, var(--color-primary-dark) 0%, rgba(30, 27, 75, 0.9) 100%),
+                url('https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80');
+            background-size: cover;
+            background-position: center;
+            padding: 80px 0;
+            color: white;
+            text-align: center;
+            border-radius: var(--br-xl);
+            margin-bottom: var(--space-2xl);
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .search-wrapper {
+            max-width: 800px;
+            margin: 30px auto 0;
+            position: relative;
+        }
+
+        .search-bar {
+            width: 100%;
+            padding: 18px 30px 18px 60px;
+            border-radius: 40px;
+            border: none;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            color: white;
+            font-size: 1.1rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .search-bar::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .search-bar:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.25);
+            border-color: var(--color-secondary);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 25px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.3rem;
+            color: var(--color-secondary);
+        }
+
+        /* Layout Grid */
+        .catalog-grid {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: var(--space-2xl);
+        }
+
+        /* Filter Components */
+        .filter-panel {
+            background: white;
+            border-radius: var(--br-lg);
+            border: 1px solid var(--color-border);
+            padding: var(--space-xl);
+            position: sticky;
+            top: 100px;
+            height: fit-content;
+        }
+
+        .filter-section {
+            margin-bottom: var(--space-xl);
+        }
+
+        .filter-label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--color-text-muted);
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--color-surface);
+            padding-bottom: 8px;
+        }
+
+        .check-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .check-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--color-text-main);
+            cursor: pointer;
+        }
+
+        .check-item input {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--color-secondary);
+        }
+
+        /* Course List Grid */
+        .courses-viewport {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: var(--space-xl);
+        }
+
+        .course-card-v3 {
+            background: white;
+            border-radius: var(--br-xl);
+            border: 1px solid var(--color-border);
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .course-card-v3:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--color-secondary);
+        }
+
+        .thumb-box {
+            height: 180px;
+            background-size: cover;
+            background-position: center;
+            background-color: var(--color-primary-dark);
+            position: relative;
+        }
+
+        .category-tag {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(15, 23, 42, 0.8);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .card-inner {
+            padding: 25px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .xp-reward {
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: var(--color-secondary-hover);
+            margin-bottom: 10px;
+        }
+
+        .card-inner h3 {
+            font-size: 1.25rem;
+            margin-bottom: 10px;
+            line-height: 1.3;
+        }
+
+        .meta-tags {
+            display: flex;
+            gap: 15px;
+            font-size: 0.8rem;
+            color: var(--color-text-muted);
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .card-footer-v3 {
+            margin-top: auto;
+            border-top: 1px solid var(--color-surface);
+            padding-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .price-text {
+            font-weight: 900;
+            font-size: 1.1rem;
+            color: var(--color-primary-dark);
+        }
+
+        @media (max-width: 1024px) {
+            .catalog-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-panel {
+                position: relative;
+                top: 0;
+            }
+        }
+    </style>
+</head>
+
+<body data-current-role="learner">
+
+    <!-- Unified Header -->
+    <header class="app-header">
+        <div class="container">
+            <div class="logo" onclick="window.location.href='learner.html'">APEX<span>LMS</span></div>
+            <nav class="app-nav">
+                <a href="learner.html">My Workspace</a>
+                <a href="certificate.html">Wallet</a>
+                <a href="catalog.html" class="active">Catalog</a>
+                <a href="community.html">Community</a>
+            </nav>
+            <div class="user-profile">
+                <div style="text-align: right;" class="hide-mobile">
+                    <div style="font-weight: 700; font-size: 0.95rem; color: var(--color-primary-dark);"
+                        id="global-user-name">Alice Student</div>
+                    <div style="font-size: 0.75rem; color: var(--color-text-muted); font-weight: 600;"
+                        id="global-user-role">ENTERPRISE LEARNER</div>
+                </div>
+                <div
+                    style="width: 44px; height: 44px; background: var(--color-accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--color-primary-dark); font-weight: 800; border: 2px solid white; box-shadow: var(--shadow-sm);">
+                    AL</div>
+                <button class="btn btn-outline hide-mobile"
+                    style="padding: 0.5rem 1rem; font-size: 0.85rem; margin-left: 8px; border-width: 1px;"
+                    id="btn-logout">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="workspace container">
+
+        <!-- Hero Section Inside Workspace for Alignment -->
+        <section class="catalog-hero animate-title-reveal">
+            <div style="padding: 0 40px;">
+                <span class="animate-content-reveal delay-200"
+                    style="text-transform:uppercase; font-size:0.8rem; font-weight:800; letter-spacing:3px; color:var(--color-accent); margin-bottom:15px; display:block;">Knowledge
+                    Discovery</span>
+                <h1 style="color:white; font-size: 3rem; font-weight: 900; margin-bottom: 15px;">Upskill Your
+                    Architecture.</h1>
+                <p style="opacity: 0.8; font-size: 1.2rem; max-width: 700px; margin: 0 auto;"
+                    class="animate-content-reveal delay-300">Access professional-grade training paths designed by
+                    industry leaders.</p>
+                <div class="search-wrapper animate-content-reveal delay-400">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-bar" id="catalog-search"
+                        placeholder="Search for skills, topics, or laboratory codes...">
+                </div>
+            </div>
+        </section>
+
+        <div class="catalog-grid">
+
+            <aside class="filter-side animate-fade-in-left delay-200">
+                <div class="filter-panel">
+                    <div class="filter-section">
+                        <span class="filter-label">Categories</span>
+                        <div class="check-group" id="category-filters">
+                            <label class="check-item"><input type="checkbox" value="Cybersecurity" checked>
+                                Cybersecurity</label>
+                            <label class="check-item"><input type="checkbox" value="Cloud Infra" checked> Cloud
+                                Infrastructure</label>
+                            <label class="check-item"><input type="checkbox" value="Leadership"> Leadership</label>
+                            <label class="check-item"><input type="checkbox" value="Compliance"> Compliance</label>
+                            <label class="check-item"><input type="checkbox" value="AI & Data"> AI & Data</label>
+                            <label class="check-item"><input type="checkbox" value="Engineering"> Engineering</label>
+                            <label class="check-item"><input type="checkbox" value="Database"> Database</label>
+                            <label class="check-item"><input type="checkbox" value="Blockchain"> Blockchain</label>
+                            <label class="check-item"><input type="checkbox" value="Other"> Specialized Tracks</label>
+                        </div>
+                    </div>
+
+                    <div class="filter-section">
+                        <span class="filter-label">Mastery Level</span>
+                        <div class="check-group" id="level-filters">
+                            <label class="check-item"><input type="radio" name="diff" value="all" checked> View
+                                All</label>
+                            <label class="check-item"><input type="radio" name="diff" value="Foundational">
+                                Foundational</label>
+                            <label class="check-item"><input type="radio" name="diff" value="Intermediate">
+                                Intermediate</label>
+                            <label class="check-item"><input type="radio" name="diff" value="Expert"> Professional /
+                                Expert</label>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <main>
+                <div class="section-header animate-title-reveal delay-200" style="margin-bottom: 30px;">
+                    <div>
+                        <h2 style="font-size: 1.8rem; color:var(--color-primary-dark); font-weight: 800;">Available
+                            Programs</h2>
+                        <span style="font-size: 0.9rem; font-weight: 700; color: var(--color-text-muted);">124
+                            Specialized Results for Your Role</span>
+                    </div>
+                </div>
+
+                <div class="courses-viewport animate-content-reveal delay-400" id="catalog-grid">
+
+                    <!-- Course 1 -->
+                    <div class="course-card-v3" data-category="Cybersecurity" data-level="Intermediate">
+                        <div class="thumb-box"
+                            style="background-image: url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80');">
+                            <span class="category-tag">Cybersecurity</span>
+                        </div>
+                        <div class="card-inner">
+                            <div class="xp-reward">⚡ 1,200 XP Reward</div>
+                            <h3>Network Perimeter Defense</h3>
+                            <p style="font-size: 0.9rem; color: var(--color-text-muted); margin-bottom: 20px;">Master
+                                firewall configuration, IDS/IPS tuning, and packet deep-dive analysis.</p>
+                            <div class="meta-tags">
+                                <span>🕒 18 Hours</span>
+                                <span>📚 45 Lessons</span>
+                            </div>
+                            <div class="card-footer-v3">
+                                <span class="price-text">INCLUDED</span>
+                                <button class="btn btn-secondary"
+                                    onclick="APEX_SYSTEM.openCourseOverview('Network Perimeter Defense')"
+                                    style="padding: 10px 24px;">Start Path</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Course 2 -->
+                    <div class="course-card-v3" data-category="Cloud Infra" data-level="Intermediate">
+                        <div class="thumb-box"
+                            style="background-image: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80');">
+                            <span class="category-tag">Cloud Infra</span>
+                        </div>
+                        <div class="card-inner">
+                            <div class="xp-reward">⚡ 2,500 XP Reward</div>
+                            <h3>Zero Trust Architecture</h3>
+                            <p style="font-size: 0.9rem; color: var(--color-text-muted); margin-bottom: 20px;">Building
+                                secure pipelines in a perimeter-less world using modern identity providers.</p>
+                            <div class="meta-tags">
+                                <span>🕒 12 Hours</span>
+                                <span>📚 22 Lessons</span>
+                            </div>
+                            <div class="card-footer-v3">
+                                <span class="price-text">INCLUDED</span>
+                                <button class="btn btn-secondary"
+                                    onclick="APEX_SYSTEM.openCourseOverview('Zero Trust Architecture')"
+                                    style="padding: 10px 24px;">Start Path</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Course 3 -->
+                    <div class="course-card-v3" data-category="Leadership" data-level="Intermediate">
+                        <div class="thumb-box"
+                            style="background-image: url('https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80');">
+                            <span class="category-tag">Leadership</span>
+                        </div>
+                        <div class="card-inner">
+                            <div class="xp-reward">⚡ 800 XP Reward</div>
+                            <h3>The Empathetic Architect</h3>
+                            <p style="font-size: 0.9rem; color: var(--color-text-muted); margin-bottom: 20px;">Scaling
+                                teams through emotional intelligence and high-trust communication cycles.</p>
+                            <div class="meta-tags">
+                                <span>🕒 6 Hours</span>
+                                <span>📚 15 Lessons</span>
+                            </div>
+                            <div class="card-footer-v3">
+                                <span class="price-text">INCLUDED</span>
+                                <button class="btn btn-secondary"
+                                    onclick="APEX_SYSTEM.openCourseOverview('The Empathetic Architect')"
+                                    style="padding: 10px 24px;">Start Path</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Course 4 -->
+                    <div class="course-card-v3" data-category="Compliance" data-level="Intermediate">
+                        <div class="thumb-box"
+                            style="background-image: url('https://images.unsplash.com/photo-1563986768609-322da13575f3?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80');">
+                            <span class="category-tag">Compliance</span>
+                        </div>
+                        <div class="card-inner">
+                            <div class="xp-reward" style="color:#f43f5e;">⚡ 1,500 XP (Mandatory)</div>
+                            <h3>FinTech Governance L2</h3>
+                            <p style="font-size: 0.9rem; color: var(--color-text-muted); margin-bottom: 20px;">Advanced
+                                regulatory frameworks for internal audits and secure financial reporting.</p>
+                            <div class="meta-tags">
+                                <span>🕒 32 Hours</span>
+                                <span>📚 10 Modules</span>
+                            </div>
+                            <div class="card-footer-v3">
+                                <span class="price-text">REQUIRED</span>
+                                <button class="btn btn-secondary"
+                                    onclick="APEX_SYSTEM.openCourseOverview('FinTech Governance')"
+                                    style="padding: 10px 24px;">Start Path</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Course 5 -->
+                    <div class="course-card-v3" data-category="DevOps" data-level="Intermediate">
+                        <div class="thumb-box"
+                            style="background-image: url('https://images.unsplash.com/photo-1667372393119-3d4c48d07fc9?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80');">
+                            <span class="category-tag">DevOps</span>
+                        </div>
+                        <div class="card-inner">
+                            <div class="xp-reward">⚡ 1,800 XP Reward</div>
+                            <h3>Scalable CI/CD Systems</h3>
+                            <p style="font-size: 0.9rem; color: var(--color-text-muted); margin-bottom: 20px;">
+                                Architecting automated pipelines using Jenkins, GitLab, and ArgoCD for K8s deployment.
+                            </p>
+                            <div class="meta-tags">
+                                <span>🕒 20 Hours</span>
+                                <span>📚 28 Lessons</span>
+                            </div>
+                            <div class="card-footer-v3">
+                                <span class="price-text">INCLUDED</span>
+                                <button class="btn btn-secondary"
+                                    onclick="APEX_SYSTEM.openCourseOverview('Scalable CI/CD')"
+                                    style="padding: 10px 24px;">Start Path</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Course 6 -->
+                    <div class="course-card-v3" data-category="AI & Data" data-level="Expert">
+                        <div class="thumb-box"
+                            style="background-image: url('https://images.unsplash.com/photo-1677442136019-21780ecad995?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80');">
+                            <span class="category-tag">AI & Data</span>
+                        </div>
+                        <div class="card-inner">
+                            <div class="xp-reward">⚡ 3,400 XP Reward</div>
+                            <h3>LLM Prompt Engineering</h3>
+                            <p style="font-size: 0.9rem; color: var(--color-text-muted); margin-bottom: 20px;">
+                                Orchestrating foundational models for automated enterprise research and coding.</p>
+                            <div class="meta-tags">
+                                <span>🕒 14 Hours</span>
+                                <span>📚 22 Lessons</span>
+                            </div>
+                            <div class="card-footer-v3">
+                                <span class="price-text">PREMIUM</span>
+                                <button class="btn btn-primary"
+                                    onclick="APEX_SYSTEM.openCourseOverview('LLM Prompt Engineering')"
+                                    style="padding: 10px 24px;">Enroll Path</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Course 7 -->
+                    <div class="course-card-v3" data-category="Engineering" data-level="Intermediate">
+                        <div class="thumb-box"
+                            style="background-image: url('https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80');">
+                            <span class="category-tag">Engineering</span>
+                        </div>
+                        <div class="card-inner">
+                            <div class="xp-reward">⚡ 2,200 XP Reward</div>
+                            <h3>High-Latency Systems in Go</h3>
+                            <p style="font-size: 0.9rem; color: var(--color-text-muted); margin-bottom: 20px;">Deep dive
+                                into goroutines, memory allocation, and high-performance microservices.</p>
+                            <div class="meta-tags">
+                                <span>🕒 25 Hours</span>
+                                <span>📚 18 Labs</span>
+                            </div>
+                            <div class="card-footer-v3">
+                                <span class="price-text">INCLUDED</span>
+                                <button class="btn btn-secondary"
+                                    onclick="APEX_SYSTEM.openCourseOverview('Go High Latency')"
+                                    style="padding: 10px 24px;">Start Path</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Course 8 -->
+                    <div class="course-card-v3" data-category="Database" data-level="Intermediate">
+                        <div class="thumb-box"
+                            style="background-image: url('https://images.unsplash.com/photo-1544383835-bda2bc66a55d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80');">
+                            <span class="category-tag">Database</span>
+                        </div>
+                        <div class="card-inner">
+                            <div class="xp-reward">⚡ 900 XP Reward</div>
+                            <h3>Postgres Query Optimization</h3>
+                            <p style="font-size: 0.9rem; color: var(--color-text-muted); margin-bottom: 20px;">Analyzing
+                                query plans, indexing strategies, and locking contention in high-scale DBs.</p>
+                            <div class="meta-tags">
+                                <span>🕒 8 Hours</span>
+                                <span>📚 12 Lessons</span>
+                            </div>
+                            <div class="card-footer-v3">
+                                <span class="price-text">INCLUDED</span>
+                                <button class="btn btn-secondary"
+                                    onclick="APEX_SYSTEM.openCourseOverview('Postgres Opt')"
+                                    style="padding: 10px 24px;">Start Path</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Course 9 -->
+                    <div class="course-card-v3" data-category="Mobile" data-level="Intermediate">
+                        <div class="thumb-box"
+                            style="background-image: url('https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80');">
+                            <span class="category-tag">Mobile</span>
+                        </div>
+                        <div class="card-inner">
+                            <div class="xp-reward">⚡ 1,400 XP Reward</div>
+                            <h3>Enterprise Flutter Mastery</h3>
+                            <p style="font-size: 0.9rem; color: var(--color-text-muted); margin-bottom: 20px;">
+                                Multi-platform app engineering with Bloc, Clean Architecture, and CI/CD pipelines.</p>
+                            <div class="meta-tags">
+                                <span>🕒 20 Hours</span>
+                                <span>📚 30 Lessons</span>
+                            </div>
+                            <div class="card-footer-v3">
+                                <span class="price-text">INCLUDED</span>
+                                <button class="btn btn-secondary"
+                                    onclick="APEX_SYSTEM.openCourseOverview('Flutter Mastery')"
+                                    style="padding: 10px 24px;">Start Path</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Course 10 -->
+                    <div class="course-card-v3" data-category="Cybersecurity" data-level="Expert">
+                        <div class="thumb-box"
+                            style="background-image: url('https://images.unsplash.com/photo-1563206767-5b18f218e8de?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80');">
+                            <span class="category-tag">Cybersecurity</span>
+                        </div>
+                        <div class="card-inner">
+                            <div class="xp-reward">⚡ 2,700 XP Reward</div>
+                            <h3>Wireless Protocol Pentesting</h3>
+                            <p style="font-size: 0.9rem; color: var(--color-text-muted); margin-bottom: 20px;">
+                                Identifying vulnerabilities in WPA3, signal hijacking, and rogue access point detection.
+                            </p>
+                            <div class="meta-tags">
+                                <span>🕒 18 Hours</span>
+                                <span>📚 12 Labs</span>
+                            </div>
+                            <div class="card-footer-v3">
+                                <span class="price-text">PREMIUM</span>
+                                <button class="btn btn-primary"
+                                    onclick="APEX_SYSTEM.openCourseOverview('Wireless Pentesting')"
+                                    style="padding: 10px 24px;">Enroll Path</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Course 11 -->
+                    <div class="course-card-v3" data-category="Leadership" data-level="Intermediate">
+                        <div class="thumb-box"
+                            style="background-image: url('https://images.unsplash.com/photo-1519389950473-47ba0277781c?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80');">
+                            <span class="category-tag">Leadership</span>
+                        </div>
+                        <div class="card-inner">
+                            <div class="xp-reward">⚡ 1,100 XP Reward</div>
+                            <h3>Crisis Response for Tech Leads</h3>
+                            <p style="font-size: 0.9rem; color: var(--color-text-muted); margin-bottom: 20px;">Scaling
+                                decision cycles under pressure and strategic system restoration workflows.</p>
+                            <div class="meta-tags">
+                                <span>🕒 10 Hours</span>
+                                <span>📚 8 Scenarios</span>
+                            </div>
+                            <div class="card-footer-v3">
+                                <span class="price-text">INCLUDED</span>
+                                <button class="btn btn-secondary"
+                                    onclick="APEX_SYSTEM.openCourseOverview('Crisis Response')"
+                                    style="padding: 10px 24px;">Start Path</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Course 12 -->
+                    <div class="course-card-v3" data-category="Blockchain" data-level="Expert">
+                        <div class="thumb-box"
+                            style="background-image: url('https://images.unsplash.com/photo-1639762681485-074b7f938ba0?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80');">
+                            <span class="category-tag">Blockchain</span>
+                        </div>
+                        <div class="card-inner">
+                            <div class="xp-reward">⚡ 4,000 XP Reward</div>
+                            <h3>Smart Contract Security</h3>
+                            <p style="font-size: 0.9rem; color: var(--color-text-muted); margin-bottom: 20px;">Advanced
+                                auditing of Solidity contracts, reentrancy guards, and gas optimization.</p>
+                            <div class="meta-tags">
+                                <span>🕒 45 Hours</span>
+                                <span>📚 25 Labs</span>
+                            </div>
+                            <div class="card-footer-v3">
+                                <span class="price-text">PREMIUM</span>
+                                <button class="btn btn-primary"
+                                    onclick="APEX_SYSTEM.openCourseOverview('Smart Contract Sec')"
+                                    style="padding: 10px 24px;">Enroll Path</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Course 13 -->
+                    <div class="course-card-v3" data-category="Design" data-level="Foundational">
+                        <div class="thumb-box"
+                            style="background-image: url('https://images.unsplash.com/photo-1581291518062-c9a79415c6b9?auto=format&fit=crop&w=800&q=80');">
+                            <span class="category-tag">Design</span>
+                        </div>
+                        <div class="card-inner">
+                            <div class="xp-reward">⚡ 600 XP Reward</div>
+                            <h3>Behavioral UX for SaaS</h3>
+                            <p style="font-size: 0.9rem; color: var(--color-text-muted); margin-bottom: 20px;">Applying
+                                cognitive psychology to improve activation and user retention loops.</p>
+                            <div class="meta-tags">
+                                <span>🕒 6 Hours</span>
+                                <span>📚 15 Lessons</span>
+                            </div>
+                            <div class="card-footer-v3">
+                                <span class="price-text">INCLUDED</span>
+                                <button class="btn btn-secondary"
+                                    onclick="APEX_SYSTEM.openCourseOverview('Behavioral UX')"
+                                    style="padding: 10px 24px;">Start Path</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Course 14 -->
+                    <div class="course-card-v3" data-category="Cloud Infra" data-level="Intermediate">
+                        <div class="thumb-box"
+                            style="background-image: url('https://images.unsplash.com/photo-1461749280684-dccba630e2f6?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80');">
+                            <span class="category-tag">Cloud Infra</span>
+                        </div>
+                        <div class="card-inner">
+                            <div class="xp-reward">⚡ 1,700 XP Reward</div>
+                            <h3>Event-Driven Serverless</h3>
+                            <p style="font-size: 0.9rem; color: var(--color-text-muted); margin-bottom: 20px;">
+                                Architecting reactive systems with AWS EventBridge, SQS, and Lambda triggers.</p>
+                            <div class="meta-tags">
+                                <span>🕒 18 Hours</span>
+                                <span>📚 20 Labs</span>
+                            </div>
+                            <div class="card-footer-v3">
+                                <span class="price-text">INCLUDED</span>
+                                <button class="btn btn-secondary"
+                                    onclick="APEX_SYSTEM.openCourseOverview('Serverless Event')"
+                                    style="padding: 10px 24px;">Start Path</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Course 15 -->
+                    <div class="course-card-v3" data-category="AI & Data" data-level="Expert">
+                        <div class="thumb-box"
+                            style="background-image: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80');">
+                            <span class="category-tag">AI & Data</span>
+                        </div>
+                        <div class="card-inner">
+                            <div class="xp-reward">⚡ 2,400 XP Reward</div>
+                            <h3>Predictive Data Modeling</h3>
+                            <p style="font-size: 0.9rem; color: var(--color-text-muted); margin-bottom: 20px;">Building
+                                regressive models for ROI forecasting and demand supply-chain analysis.</p>
+                            <div class="meta-tags">
+                                <span>🕒 32 Hours</span>
+                                <span>📚 10 Modules</span>
+                            </div>
+                            <div class="card-footer-v3">
+                                <span class="price-text">PREMIUM</span>
+                                <button class="btn btn-primary"
+                                    onclick="APEX_SYSTEM.openCourseOverview('Predictive Data')"
+                                    style="padding: 10px 24px;">Enroll Path</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Course 16 -->
+                    <div class="course-card-v3" data-category="Engineering" data-level="Expert">
+                        <div class="thumb-box"
+                            style="background-image: url('https://images.unsplash.com/photo-1633356122544-f134324a6cee?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80');">
+                            <span class="category-tag">Engineering</span>
+                        </div>
+                        <div class="card-inner">
+                            <div class="xp-reward">⚡ 1,200 XP Reward</div>
+                            <h3>Advanced Rust Systems</h3>
+                            <p style="font-size: 0.9rem; color: var(--color-text-muted); margin-bottom: 20px;">Memory
+                                safety, ownership models, and zero-cost abstractions in system programming.</p>
+                            <div class="meta-tags">
+                                <span>🕒 28 Hours</span>
+                                <span>📚 24 Lessons</span>
+                            </div>
+                            <div class="card-footer-v3">
+                                <span class="price-text">INCLUDED</span>
+                                <button class="btn btn-secondary"
+                                    onclick="APEX_SYSTEM.openCourseOverview('Rust Systems')"
+                                    style="padding: 10px 24px;">Start Path</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 60px; text-align: center;">
+                    <button class="btn btn-outline" id="load-more-tracks"
+                        style="padding: 15px 40px; border-width: 1.5px; border-radius: 30px; font-weight: 800;">Load 24
+                        More Advanced Tracks</button>
+                </div>
+            </main>
+
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+
+</html>

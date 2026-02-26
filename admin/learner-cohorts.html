@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cohort Intelligence | APEX-LMS</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/admin-portal.css">
+    <style>
+        .cohort-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 24px;
+        }
+        .cohort-card {
+            background: white;
+            border: 1px solid var(--color-admin-border);
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .cohort-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
+            border-color: var(--color-admin-secondary);
+        }
+        .risk-indicator {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        .risk-low { background: #10b981; box-shadow: 0 0 10px #10b981; }
+        .risk-med { background: #f59e0b; box-shadow: 0 0 10px #f59e0b; }
+        .risk-high { background: #ef4444; box-shadow: 0 0 10px #ef4444; }
+        
+        .progress-track {
+            height: 8px;
+            background: #f1f5f9;
+            border-radius: 4px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            transition: width 1s ease-out;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body data-current-role="admin">
+
+    <div class="dashboard-layout">
+        <header class="admin-header glass-top">
+            <div class="header-main">
+                <a href="dashboard.html" class="brand">APEX<span>COHORTS</span></a>
+                <div class="tenant-badge shimmer-box hide-mobile">842 Active Learners</div>
+                <div class="user-profile">
+                    <button class="btn btn-primary" onclick="APEX_SYSTEM.notify('Syncing cohort engagement metrics...', 'success')">Refresh Sync</button>
+                    <div class="profile-avatar">AA</div>
+                </div>
+            </div>
+            <nav class="admin-nav">
+                <a href="dashboard.html" class="nav-item">📊 Dashboard</a>
+                <a href="content-studio.html" class="nav-item">🔨 Studio</a>
+                <a href="course-inventory.html" class="nav-item">📚 Inventory</a>
+                <a href="learner-cohorts.html" class="nav-item active">👥 Cohorts</a>
+                <a href="question-library.html" class="nav-item">🧩 Questions</a>
+            </nav>
+        </header>
+
+        <main class="main-scroll">
+            <div class="admin-grid">
+                <div class="col-span-12">
+                    <div class="flex justify-between items-center" style="margin-bottom: 30px;">
+                        <div>
+                            <h2 style="font-size: 1.8rem;">Cohort Intel Suite</h2>
+                            <p style="font-size: 0.9rem; color: var(--color-admin-muted);">Cross-departmental tracking for Acme Tenant</p>
+                        </div>
+                        <div class="flex gap-md" style="align-items: center;">
+                            <input type="text" placeholder="Search cohorts by department, cluster, or risk..." style="min-width: 320px; padding: 12px 20px; border-radius: 10px; border: 1px solid var(--color-admin-border); height: 48px;">
+                            <button class="btn btn-premium" style="height: 48px; width: 220px;" onclick="APEX_SYSTEM.openCohortDrawer('provision')">+ Provision Cohort</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- High Density Cohort Cards -->
+                <div class="col-span-12 cohort-grid">
+                    
+                    <div class="cohort-card animate-fade-in-up">
+                        <div class="risk-indicator risk-low"></div>
+                        <div style="font-size: 0.75rem; font-weight: 800; color:var(--color-admin-secondary); margin-bottom: 5px;">ENGINEERING</div>
+                        <h3 style="margin: 0; font-size: 1.2rem;">Q1 Infra Sentinels</h3>
+                        <p style="font-size: 0.8rem; color: var(--color-admin-muted); margin-top: 5px;">Infrastructure & Security Cluster</p>
+                        <div style="margin-top: 20px;">
+                            <div class="flex justify-between" style="font-size: 0.8rem; font-weight: 700;">
+                                <span>Mastery Progress</span>
+                                <span>82%</span>
+                            </div>
+                            <div class="progress-track">
+                                <div class="progress-fill" style="width: 82%; background: var(--color-admin-secondary);"></div>
+                            </div>
+                        </div>
+                        <div class="flex justify-between align-center" style="margin-top: 15px;">
+                            <span style="font-size: 0.75rem; font-weight: 800;">124 Learners</span>
+                            <button class="btn btn-premium" style="font-size: 0.7rem; padding: 10px 20px;" onclick="APEX_SYSTEM.openCohortDrawer('drilldown', 'Q1 Infra Sentinels')">Intelligence Panel</button>
+                        </div>
+                    </div>
+
+                    <div class="cohort-card animate-fade-in-up delay-100">
+                        <div class="risk-indicator risk-med"></div>
+                        <div style="font-size: 0.75rem; font-weight: 800; color:#f59e0b; margin-bottom: 5px;">SALES</div>
+                        <h3 style="margin: 0; font-size: 1.2rem;">Mid-Market Growth</h3>
+                        <p style="font-size: 0.8rem; color: var(--color-admin-muted); margin-top: 5px;">Strategic Negotiation Stream</p>
+                        <div style="margin-top: 20px;">
+                            <div class="flex justify-between" style="font-size: 0.8rem; font-weight: 700;">
+                                <span>Mastery Progress</span>
+                                <span>44%</span>
+                            </div>
+                            <div class="progress-track">
+                                <div class="progress-fill" style="width: 44%; background: #f59e0b;"></div>
+                            </div>
+                        </div>
+                        <div class="flex justify-between align-center" style="margin-top: 15px;">
+                            <span style="font-size: 0.75rem; font-weight: 800;">86 Learners</span>
+                            <button class="btn btn-outline" style="font-size: 0.7rem; padding: 6px 12px;" onclick="APEX_SYSTEM.openCohortDrawer('drilldown', 'Mid-Market Growth')">Drill Down</button>
+                        </div>
+                    </div>
+
+                    <div class="cohort-card animate-fade-in-up delay-200">
+                        <div class="risk-indicator risk-low"></div>
+                        <div style="font-size: 0.75rem; font-weight: 800; color:var(--color-admin-accent); margin-bottom: 5px;">LEADERSHIP</div>
+                        <h3 style="margin: 0; font-size: 1.2rem;">Elite Management</h3>
+                        <p style="font-size: 0.8rem; color: var(--color-admin-muted); margin-top: 5px;">Director-Level Fast-Track</p>
+                        <div style="margin-top: 20px;">
+                            <div class="flex justify-between" style="font-size: 0.8rem; font-weight: 700;">
+                                <span>Mastery Progress</span>
+                                <span>94%</span>
+                            </div>
+                            <div class="progress-track">
+                                <div class="progress-fill" style="width: 94%; background: var(--color-admin-accent);"></div>
+                            </div>
+                        </div>
+                        <div class="flex justify-between align-center" style="margin-top: 15px;">
+                            <span style="font-size: 0.75rem; font-weight: 800;">32 Learners</span>
+                            <button class="btn btn-outline" style="font-size: 0.7rem; padding: 6px 12px;" onclick="APEX_SYSTEM.openCohortDrawer('drilldown', 'Elite Management')">Drill Down</button>
+                        </div>
+                    </div>
+
+                    <div class="cohort-card animate-fade-in-up delay-300">
+                        <div class="risk-indicator risk-high"></div>
+                        <div style="font-size: 0.75rem; font-weight: 800; color:#ef4444; margin-bottom: 5px;">ONSITE OPS</div>
+                        <h3 style="margin: 0; font-size: 1.2rem;">Region-7 Logistics</h3>
+                        <p style="font-size: 0.8rem; color: var(--color-admin-muted); margin-top: 5px;">Compliance & Safety Training</p>
+                        <div style="margin-top: 20px;">
+                            <div class="flex justify-between" style="font-size: 0.8rem; font-weight: 700;">
+                                <span>Mastery Progress</span>
+                                <span>12%</span>
+                            </div>
+                            <div class="progress-track">
+                                <div class="progress-fill" style="width: 12%; background: #ef4444;"></div>
+                            </div>
+                        </div>
+                        <div class="flex justify-between align-center" style="margin-top: 15px;">
+                            <span style="font-size: 0.75rem; font-weight: 800;">210 Learners</span>
+                            <button class="btn btn-outline" style="font-size: 0.7rem; padding: 6px 12px;" onclick="APEX_SYSTEM.openCohortDrawer('drilldown', 'Region-7 Logistics')">Nudge All</button>
+                        </div>
+                    </div>
+
+                    <div class="cohort-card animate-fade-in-up delay-400">
+                        <div class="risk-indicator risk-low"></div>
+                        <div style="font-size: 0.75rem; font-weight: 800; color:var(--color-admin-secondary); margin-bottom: 5px;">DEVELOPMENT</div>
+                        <h3 style="margin: 0; font-size: 1.2rem;">Full-Stack NextGen</h3>
+                        <p style="font-size: 0.8rem; color: var(--color-admin-muted); margin-top: 5px;">Internal Engineering Upskill</p>
+                        <div style="margin-top: 20px;">
+                            <div class="flex justify-between" style="font-size: 0.8rem; font-weight: 700;">
+                                <span>Mastery Progress</span>
+                                <span>65%</span>
+                            </div>
+                            <div class="progress-track">
+                                <div class="progress-fill" style="width: 65%; background: var(--color-admin-secondary);"></div>
+                            </div>
+                        </div>
+                        <div class="flex justify-between align-center" style="margin-top: 15px;">
+                            <span style="font-size: 0.75rem; font-weight: 800;">58 Learners</span>
+                            <button class="btn btn-outline" style="font-size: 0.7rem; padding: 6px 12px;" onclick="APEX_SYSTEM.openCohortDrawer('drilldown', 'Full-Stack NextGen')">Drill Down</button>
+                        </div>
+                    </div>
+
+                    <div class="cohort-card animate-fade-in-up delay-500">
+                        <div class="risk-indicator risk-med"></div>
+                        <div style="font-size: 0.75rem; font-weight: 800; color:#f59e0b; margin-bottom: 5px;">MARKETING</div>
+                        <h3 style="margin: 0; font-size: 1.2rem;">Global Branding 2026</h3>
+                        <p style="font-size: 0.8rem; color: var(--color-admin-muted); margin-top: 5px;">Brand Identity & Alignment</p>
+                        <div style="margin-top: 20px;">
+                            <div class="flex justify-between" style="font-size: 0.8rem; font-weight: 700;">
+                                <span>Mastery Progress</span>
+                                <span>38%</span>
+                            </div>
+                            <div class="progress-track">
+                                <div class="progress-fill" style="width: 38%; background: #f59e0b;"></div>
+                            </div>
+                        </div>
+                        <div class="flex justify-between align-center" style="margin-top: 15px;">
+                            <span style="font-size: 0.75rem; font-weight: 800;">45 Learners</span>
+                            <button class="btn btn-outline" style="font-size: 0.7rem; padding: 6px 12px;" onclick="APEX_SYSTEM.openCohortDrawer('drilldown', 'Global Branding 2026')">Drill Down</button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="col-span-8">
+                    <div class="kpi-card">
+                        <div class="flex justify-between items-center" style="margin-bottom: 20px;">
+                            <h3 style="margin:0; font-size: 1.4rem;">Cohort Performance Overview</h3>
+                            <button class="btn btn-outline" style="font-size: 0.75rem; padding: 6px 12px;" onclick="APEX_SYSTEM.notify('Accessing global performance manifest...', 'info')">View All</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Cohort Name</th>
+                                        <th>Progress</th>
+                                        <th>Avg Latency</th>
+                                        <th>Engagement</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="min-width: 120px;">
+                                            <div style="font-weight: 800; color: var(--color-admin-primary);">Sales Engineering</div>
+                                            <div style="font-size: 0.7rem; color: var(--color-admin-muted); margin-top:4px;">Revenue Ops | Cluster-A</div>
+                                        </td>
+                                        <td style="min-width: 180px;">
+                                            <div style="font-size: 0.8rem; font-weight: 600; margin-bottom: 6px;">75% Completed</div>
+                                            <div style="width: 100%; max-width: 140px; height: 6px; background: #f1f5f9; border-radius: 3px; overflow: hidden;">
+                                                <div style="width: 75%; height: 100%; background: var(--color-admin-secondary);"></div>
+                                            </div>
+                                        </td>
+                                        <td style="font-weight: 800;">150ms</td>
+                                        <td style="font-weight: 800;">78%</td>
+                                        <td><span class="status-pill status-live">Live</span></td>
+                                        <td><button class="btn btn-premium" style="padding: 8px 16px; font-size: 0.75rem;" onclick="APEX_SYSTEM.openCohortDrawer('drilldown', 'Sales Engineering')">Drill Down Intelligence</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="min-width: 120px;">
+                                            <div style="font-weight: 800; color: var(--color-admin-primary);">Core Infrastructure</div>
+                                            <div style="font-size: 0.7rem; color: var(--color-admin-muted); margin-top:4px;">Global DevOps | Cluster-X</div>
+                                        </td>
+                                        <td style="min-width: 180px;">
+                                            <div style="font-size: 0.8rem; font-weight: 600; margin-bottom: 6px;">92% Completed</div>
+                                            <div style="width: 100%; max-width: 140px; height: 6px; background: #f1f5f9; border-radius: 3px; overflow: hidden;">
+                                                <div style="width: 92%; height: 100%; background: var(--color-admin-secondary);"></div>
+                                            </div>
+                                        </td>
+                                        <td style="font-weight: 800;">120ms</td>
+                                        <td style="font-weight: 800;">94%</td>
+                                        <td><span class="status-pill status-live">Live</span></td>
+                                        <td><button class="btn btn-premium" style="padding: 8px 16px; font-size: 0.75rem;" onclick="APEX_SYSTEM.openCohortDrawer('drilldown', 'Core Infrastructure')">Drill Down Intelligence</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="min-width: 120px;">
+                                            <div style="font-weight: 800; color: var(--color-admin-primary);">Security Research B</div>
+                                            <div style="font-size: 0.7rem; color: var(--color-admin-muted); margin-top:4px;">Cybersecurity | Hybrid-B</div>
+                                        </td>
+                                        <td style="min-width: 180px;">
+                                            <div style="font-size: 0.8rem; font-weight: 600; margin-bottom: 6px;">45% Completed</div>
+                                            <div style="width: 100%; max-width: 140px; height: 6px; background: #f1f5f9; border-radius: 3px; overflow: hidden;">
+                                                <div style="width: 45%; height: 100%; background: var(--color-admin-accent);"></div>
+                                            </div>
+                                        </td>
+                                        <td style="font-weight: 800;">220ms</td>
+                                        <td style="font-weight: 800;">58%</td>
+                                        <td><span class="status-pill status-draft">Draft</span></td>
+                                        <td><button class="btn btn-premium" style="padding: 8px 16px; font-size: 0.75rem;" onclick="APEX_SYSTEM.openCohortDrawer('drilldown', 'Security Research B')">Drill Down Intelligence</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="min-width: 120px;">
+                                            <div style="font-weight: 800; color: var(--color-admin-primary);">Executive Leadership</div>
+                                            <div style="font-size: 0.7rem; color: var(--color-admin-muted); margin-top:4px;">Macro Management | Multi</div>
+                                        </td>
+                                        <td style="min-width: 180px;">
+                                            <div style="font-size: 0.8rem; font-weight: 600; margin-bottom: 6px;">12% Completed</div>
+                                            <div style="width: 100%; max-width: 140px; height: 6px; background: #f1f5f9; border-radius: 3px; overflow: hidden;">
+                                                <div style="width: 12%; height: 100%; background: #64748b;"></div>
+                                            </div>
+                                        </td>
+                                        <td style="font-weight: 800;">340ms</td>
+                                        <td style="font-weight: 800;">14%</td>
+                                        <td><span class="status-pill status-live">Live</span></td>
+                                        <td><button class="btn btn-premium" style="padding: 8px 16px; font-size: 0.75rem;" onclick="APEX_SYSTEM.openCohortDrawer('drilldown', 'Executive Leadership')">Drill Down Intelligence</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="min-width: 120px;">
+                                            <div style="font-weight: 800; color: var(--color-admin-primary);">North America Sales</div>
+                                            <div style="font-size: 0.7rem; color: var(--color-admin-muted); margin-top:4px;">Enterprise Revenue | AWS-3</div>
+                                        </td>
+                                        <td style="min-width: 180px;">
+                                            <div style="font-size: 0.8rem; font-weight: 600; margin-bottom: 6px;">68% Completed</div>
+                                            <div style="width: 100%; max-width: 140px; height: 6px; background: #f1f5f9; border-radius: 3px; overflow: hidden;">
+                                                <div style="width: 68%; height: 100%; background: var(--color-admin-secondary);"></div>
+                                            </div>
+                                        </td>
+                                        <td style="font-weight: 800;">110ms</td>
+                                        <td style="font-weight: 800;">72%</td>
+                                        <td><span class="status-pill status-live">Live</span></td>
+                                        <td><button class="btn btn-premium" style="padding: 8px 16px; font-size: 0.75rem;" onclick="APEX_SYSTEM.openCohortDrawer('drilldown', 'North America Sales')">Drill Down Intelligence</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="min-width: 120px;">
+                                            <div style="font-weight: 800; color: var(--color-admin-primary);">Grad Dev Cohort 2025</div>
+                                            <div style="font-size: 0.7rem; color: var(--color-admin-muted); margin-top:4px;">Engineering | Local-V</div>
+                                        </td>
+                                        <td style="min-width: 180px;">
+                                            <div style="font-size: 0.8rem; font-weight: 600; margin-bottom: 6px;">88% Completed</div>
+                                            <div style="width: 100%; max-width: 140px; height: 6px; background: #f1f5f9; border-radius: 3px; overflow: hidden;">
+                                                <div style="width: 88%; height: 100%; background: var(--color-admin-secondary);"></div>
+                                            </div>
+                                        </td>
+                                        <td style="font-weight: 800;">80ms</td>
+                                        <td style="font-weight: 800;">95%</td>
+                                        <td><span class="status-pill status-live">Live</span></td>
+                                        <td><button class="btn btn-premium" style="padding: 8px 16px; font-size: 0.75rem;" onclick="APEX_SYSTEM.openCohortDrawer('drilldown', 'Grad Dev Cohort 2025')">Drill Down Intelligence</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-span-4">
+                    <div class="glass-sidebar" style="padding: 24px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                            <h3 style="margin: 0;">Live Engagement Matrix</h3>
+                            <div class="status-pill status-live">MATRIX ACTIVE</div>
+                        </div>
+                        
+                        <p style="font-size: 0.8rem; color: var(--color-admin-muted); margin-bottom: 24px;">Real-time learner activity across global clusters.</p>
+                        
+                        <div class="engagement-heatmap" style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-bottom: 30px; position: relative;" id="engagement-matrix">
+                            <div class="matrix-box" style="aspect-ratio: 1; background: var(--color-admin-secondary); border-radius: 4px; position: relative;"></div>
+                            <div class="matrix-box" style="aspect-ratio: 1; background: #06b6d480; border-radius: 4px; position: relative;"></div>
+                            <div class="matrix-box" style="aspect-ratio: 1; background: #06b6d430; border-radius: 4px; position: relative;"></div>
+                            <div class="matrix-box" style="aspect-ratio: 1; background: var(--color-admin-accent); border-radius: 4px; position: relative;"></div>
+                            <div class="matrix-box" style="aspect-ratio: 1; background: #a3e63580; border-radius: 4px; position: relative;"></div>
+                            <div class="matrix-box" style="aspect-ratio: 1; background: #f1f5f9; border-radius: 4px; position: relative;"></div>
+                            <div class="matrix-box" style="aspect-ratio: 1; background: #06b6d4aa; border-radius: 4px; position: relative;"></div>
+                            <div class="matrix-box" style="aspect-ratio: 1; background: #06b6d440; border-radius: 4px; position: relative;"></div>
+                            <div class="matrix-box" style="aspect-ratio: 1; background: #f1f5f9; border-radius: 4px; position: relative;"></div>
+                            <div class="matrix-box" style="aspect-ratio: 1; background: var(--color-admin-secondary); border-radius: 4px; position: relative;"></div>
+                            <div class="matrix-box" style="aspect-ratio: 1; background: #a3e635; border-radius: 4px; position: relative;"></div>
+                            <div class="matrix-box" style="aspect-ratio: 1; background: #06b6d4; border-radius: 4px; position: relative;"></div>
+                            <div class="matrix-box" style="aspect-ratio: 1; background: #f1f5f9; border-radius: 4px; position: relative;"></div>
+                            <div class="matrix-box" style="aspect-ratio: 1; background: #06b6d420; border-radius: 4px; position: relative;"></div>
+                            <div class="matrix-box" style="aspect-ratio: 1; background: #06b6d4dd; border-radius: 4px; position: relative;"></div>
+                            <div class="matrix-box" style="aspect-ratio: 1; background: var(--color-admin-secondary); border-radius: 4px; position: relative;"></div>
+                            <div class="matrix-box" style="aspect-ratio: 1; background: #a3e635; border-radius: 4px; position: relative;"></div>
+                            <div class="matrix-box" style="aspect-ratio: 1; background: #f1f5f9; border-radius: 4px; position: relative;"></div>
+                            <div class="matrix-box" style="aspect-ratio: 1; background: #06b6d480; border-radius: 4px; position: relative;"></div>
+                            <div class="matrix-box" style="aspect-ratio: 1; background: var(--color-admin-secondary); border-radius: 4px; position: relative;"></div>
+                            <div class="matrix-box" style="aspect-ratio: 1; background: #f1f5f9; border-radius: 4px; position: relative;"></div>
+                            <div class="matrix-box" style="aspect-ratio: 1; background: #a3e635cc; border-radius: 4px; position: relative;"></div>
+                            <div class="matrix-box" style="aspect-ratio: 1; background: #06b6d4; border-radius: 4px; position: relative;"></div>
+                            <div class="matrix-box" style="aspect-ratio: 1; background: #06b6d450; border-radius: 4px; position: relative;"></div>
+                        </div>
+
+                        <!-- Live Legend Interface -->
+                        <div style="background: rgba(15, 23, 42, 0.03); padding: 16px; border-radius: 12px; border: 1px solid var(--color-admin-border);">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                                <span style="font-size:0.65rem; font-weight:800; color:var(--color-admin-muted);">SIGNAL INTENSITY</span>
+                                <span style="font-size:0.6rem; color:var(--color-admin-secondary); font-weight:800;">LIVE FEED ACTIVE</span>
+                            </div>
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <div style="flex:1; height:4px; border-radius:2px; background:linear-gradient(to right, #f1f5f9, #06b6d430, #06b6d4, var(--color-admin-accent));"></div>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; margin-top:8px;">
+                                <span style="font-size:0.6rem; font-weight:700;">LOW SIGNAL</span>
+                                <span style="font-size:0.6rem; font-weight:700;">HIGH ACTIVITY</span>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 50px;">
+                            <div style="font-size: 0.7rem; font-weight: 900; color: var(--color-admin-muted); text-transform: uppercase; margin-bottom: 20px;">Cluster Diagnostics</div>
+                            <div style="background: white; padding: 16px; border-radius: 12px; border: 1px solid var(--color-admin-border); margin-bottom: 12px;">
+                                <div style="font-size: 0.8rem; font-weight: 700; margin-bottom: 4px;">Acme-North Cluster</div>
+                                <div style="font-size: 0.75rem; color: #059669;">● Operational | Latency: 42ms</div>
+                            </div>
+                            <div style="background: white; padding: 16px; border-radius: 12px; border: 1px solid var(--color-admin-border);">
+                                <div style="font-size: 0.8rem; font-weight: 700; margin-bottom: 4px;">Titan-V Sync Node</div>
+                                <div style="font-size: 0.75rem; color: #059669;">● Operational | Sync-Lock: ACTIVE</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.APEX_SYSTEM) {
+                APEX_SYSTEM.initEngagementMatrix();
+            }
+        });
+    </script>
+</body>
+
+</html>

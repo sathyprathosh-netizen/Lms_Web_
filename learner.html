@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learner Portal | APEX-LMS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body {
+            background-color: var(--color-surface);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+
+        /* Profile Layout */
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+
+        /* Banner Card */
+        .banner-card {
+            background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 100%);
+            border-radius: var(--br-xl);
+            padding: var(--space-3xl);
+            color: white;
+            margin-bottom: var(--space-xl);
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .banner-bg {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 50%;
+            height: 100%;
+            background: radial-gradient(circle at top right, rgba(6, 182, 212, 0.4) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .banner-card h1 {
+            color: white;
+            font-size: 2.5rem;
+            margin-bottom: var(--space-xs);
+            line-height: 1.2;
+        }
+
+        .banner-card p {
+            opacity: 0.8;
+            font-size: 1.1rem;
+            max-width: 600px;
+            line-height: 1.6;
+        }
+
+        /* Dashboard Layout Grid */
+        .layout-grid {
+            display: grid;
+            grid-template-columns: 2.2fr 1fr;
+            gap: var(--space-xl);
+        }
+
+        /* Section Titles */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-lg);
+        }
+
+        .section-header h2 {
+            font-size: 1.4rem;
+            color: var(--color-primary-dark);
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .section-header a {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--color-secondary-hover);
+        }
+
+        /* Progress System */
+        .priority-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-lg);
+            margin-bottom: var(--space-2xl);
+        }
+
+        .continue-card {
+            border: 1px solid var(--color-secondary);
+            box-shadow: 0 10px 30px rgba(6, 182, 212, 0.1);
+            background: white;
+            border-radius: var(--br-lg);
+            padding: var(--space-xl);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .skill-radar-card {
+            background: white;
+            border: 1px solid var(--color-border);
+            border-radius: var(--br-lg);
+            padding: var(--space-xl);
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 10px;
+            background: var(--color-surface);
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 15px;
+            margin-bottom: 5px;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+            border-radius: 5px;
+            transition: width 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* Course Grid Improvements */
+        .course-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-lg);
+        }
+
+        .course-item {
+            border: 1px solid var(--color-border);
+            border-radius: var(--br-md);
+            background: white;
+            padding: var(--space-lg);
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .course-item:hover {
+            border-color: var(--color-primary-light);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-4px);
+        }
+
+        .course-item h3 {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            line-height: 1.3;
+            color: var(--color-primary-dark);
+        }
+
+        .course-meta {
+            font-size: 0.8rem;
+            color: var(--color-text-muted);
+            display: flex;
+            gap: 12px;
+            margin-top: auto;
+            padding-top: 15px;
+            border-top: 1px solid var(--color-surface);
+        }
+
+        /* Gamification Side */
+        .badge-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-sm);
+            margin-top: 15px;
+        }
+
+        .badge-slot {
+            aspect-ratio: 1;
+            border-radius: var(--br-md);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: var(--color-surface);
+            border: 2px dashed var(--color-border);
+            transition: all 0.2s;
+            position: relative;
+            padding: 5px;
+        }
+
+        .badge-slot.unlocked {
+            background: white;
+            border: 1px solid rgba(163, 230, 53, 0.5);
+            border-bottom: 3px solid var(--color-accent);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .badge-slot.unlocked:hover {
+            transform: scale(1.05);
+            z-index: 2;
+            box-shadow: 0 10px 20px rgba(163, 230, 53, 0.2);
+        }
+
+        .badge-icon {
+            font-size: 1.8rem;
+            margin-bottom: 4px;
+            filter: grayscale(100%);
+            opacity: 0.3;
+        }
+
+        .badge-slot.unlocked .badge-icon {
+            filter: none;
+            opacity: 1;
+            animation: pop 0.5s ease-out;
+        }
+
+        .badge-name {
+            font-size: 0.6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            text-align: center;
+            color: var(--color-text-muted);
+            line-height: 1.1;
+        }
+
+        .badge-slot.unlocked .badge-name {
+            color: var(--color-primary-dark);
+        }
+
+        /* Activity Feed */
+        .activity-feed {
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .activity-item {
+            display: flex;
+            gap: 12px;
+            border-bottom: 1px solid var(--color-surface);
+            padding-bottom: 12px;
+        }
+
+        .activity-item:last-child {
+            border: none;
+            padding-bottom: 0;
+        }
+
+        .activity-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--color-surface);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .activity-details p {
+            font-size: 0.85rem;
+            line-height: 1.4;
+            color: var(--color-text-main);
+            margin: 0;
+        }
+
+        .activity-details span {
+            font-size: 0.7rem;
+            color: var(--color-text-muted);
+        }
+
+        /* Recommendation Section */
+        .rec-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-lg);
+            margin-top: var(--space-2xl);
+        }
+
+        .rec-card {
+            background: white;
+            border: 1px solid var(--color-border);
+            border-radius: var(--br-md);
+            padding: var(--space-lg);
+            transition: all 0.2s;
+            border-left: 4px solid var(--color-secondary);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .rec-thumb {
+            width: 100%;
+            height: 100px;
+            background-size: cover;
+            background-position: center;
+            border-radius: var(--br-sm);
+            margin-bottom: 12px;
+            background-color: var(--color-primary-dark);
+        }
+
+        .rec-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .rec-tag {
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: var(--color-secondary-hover);
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        /* Skills List */
+        .skill-list {
+            list-style: none;
+            padding: 0;
+            margin-top: 15px;
+        }
+
+        .skill-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .skill-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--color-primary-dark);
+        }
+
+        .skill-lvl {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--color-text-muted);
+        }
+
+        .skill-progress-mini {
+            width: 100%;
+            height: 4px;
+            background: var(--color-surface);
+            border-radius: 2px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .skill-progress-bar {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* Upcoming Section */
+        .event-card {
+            background: #fdf2f2;
+            border: 1px solid #fee2e2;
+            border-radius: var(--br-md);
+            padding: var(--space-md);
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .event-date {
+            background: white;
+            border-radius: var(--br-sm);
+            padding: 5px 10px;
+            text-align: center;
+            border: 1px solid #fee2e2;
+            flex-shrink: 0;
+        }
+
+        .event-day {
+            display: block;
+            font-weight: 800;
+            font-size: 1.2rem;
+            color: var(--color-danger);
+            line-height: 1;
+        }
+
+        .event-month {
+            display: block;
+            font-size: 0.6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--color-text-muted);
+        }
+
+        .event-info h4 {
+            margin: 0;
+            font-size: 0.9rem;
+            color: var(--color-primary-dark);
+        }
+
+        .event-info p {
+            margin: 2px 0 0;
+            font-size: 0.75rem;
+            color: var(--color-text-muted);
+        }
+
+        @keyframes pop {
+            0% {
+                transform: scale(0.5);
+            }
+
+            50% {
+                transform: scale(1.2);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @media (max-width: 1100px) {
+            .layout-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .priority-group {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+
+            .course-grid,
+            .rec-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body data-current-role="learner">
+
+    <!-- Header Navigation -->
+    <header class="app-header">
+        <div class="container">
+            <div class="logo" onclick="window.location.href='learner.html'">APEX<span>LMS</span></div>
+            <nav class="app-nav">
+                <a href="learner.html" class="active">My Workspace</a>
+                <a href="certificate.html">Wallet</a>
+                <a href="catalog.html">Catalog</a>
+                <a href="community.html">Community</a>
+            </nav>
+            <div class="user-profile">
+                <div style="text-align: right;" class="hide-mobile">
+                    <div style="font-weight: 700; font-size: 0.95rem; color: var(--color-primary-dark);"
+                        id="global-user-name">Alice Student</div>
+                    <div style="font-size: 0.75rem; color: var(--color-text-muted); font-weight: 600;"
+                        id="global-user-role">ENTERPRISE LEARNER</div>
+                </div>
+                <div
+                    style="width: 44px; height: 44px; background: var(--color-accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--color-primary-dark); font-weight: 800; border: 2px solid white; box-shadow: var(--shadow-sm);">
+                    AL</div>
+                <button class="btn btn-outline hide-mobile"
+                    style="padding: 0.5rem 1rem; font-size: 0.85rem; margin-left: 8px; border-width: 1px;"
+                    id="btn-logout">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="workspace container">
+
+        <!-- Welcome Banner -->
+        <div class="banner-card delay-100 animate-fade-in-up">
+            <div class="banner-bg"></div>
+            <div style="position: relative; z-index: 1;">
+                <h1 id="welcome-msg">Welcome back, Alice.</h1>
+                <p>You have pending assessments required for your Q3 Compliance certification. Please complete them to
+                    maintain your active system status.</p>
+
+                <div
+                    style="margin-top: var(--space-xl); display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-2xl);">
+                    <div>
+                        <div class="count-up" style="font-size: 1.8rem; font-weight: 800; color: var(--color-accent);"
+                            data-target="12">0</div>
+                        <div style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; opacity: 0.7;">
+                            Certs Earned</div>
+                    </div>
+                    <div>
+                        <div class="count-up"
+                            style="font-size: 1.8rem; font-weight: 800; color: var(--color-secondary);"
+                            data-target="4280">0</div>
+                        <div style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; opacity: 0.7;">
+                            Learning Minutes</div>
+                    </div>
+                    <div>
+                        <div class="count-up" style="font-size: 1.8rem; font-weight: 800; color: white;"
+                            data-target="4">#0</div>
+                        <div style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; opacity: 0.7;">Rank
+                            in Cohort</div>
+                    </div>
+                    <div>
+                        <div class="count-up" style="font-size: 1.8rem; font-weight: 800; color: #a3e635;"
+                            data-target="85">0%</div>
+                        <div style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; opacity: 0.7;">
+                            Skill Mastery</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="layout-grid">
+
+            <!-- Left Column: Primary Content -->
+            <div>
+
+                <div class="section-header delay-200 animate-fade-in-up">
+                    <h2>Priority learning</h2>
+                    <a href="#">View Training Path →</a>
+                </div>
+
+                <div class="priority-group delay-300 animate-fade-in-up">
+                    <!-- Priority Course -->
+                    <div class="continue-card">
+                        <div class="flex justify-between items-center" style="margin-bottom: 10px;">
+                            <span class="badge"
+                                style="background: rgba(245, 158, 11, 0.1); color: #d97706; border: 1px solid rgba(245, 158, 11, 0.2);">Urgent
+                                Deadline</span>
+                            <span style="font-weight: 700; color: var(--color-primary-dark); font-size: 0.85rem;">Due in
+                                4 days</span>
+                        </div>
+                        <h3>Enterprise Security 101</h3>
+                        <p style="color: var(--color-text-muted); font-size: 0.9rem; margin-bottom: 20px;">Module 3:
+                            Advanced Phishing & Deepfakes</p>
+
+                        <div class="progress-bar-bg" style="margin-top: auto;">
+                            <div class="progress-bar-fill" style="width: 0%;" data-target="68%"></div>
+                        </div>
+                        <div class="flex justify-between items-center" style="margin-top: 15px;">
+                            <span style="font-size: 0.8rem; color: var(--color-text-muted);">68% Complete • 14m
+                                left</span>
+                            <button class="btn btn-primary" style="padding: 0.6rem 1.2rem; font-size: 0.9rem;"
+                                onclick="window.location.href='course-player.html'">Resume ▶</button>
+                        </div>
+                    </div>
+
+                    <!-- Skills Matrix -->
+                    <div class="skill-radar-card glass-card animate-content-reveal delay-300">
+                        <h4
+                            style="margin: 0 0 15px; font-size: 1rem; color: var(--color-primary-dark); font-weight: 800;">
+                            Proficiency Levels</h4>
+                        <div class="skill-list">
+                            <div class="skill-row animate-fade-in-up delay-400">
+                                <div style="flex: 1;">
+                                    <div
+                                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                        <span class="skill-name">Data Privacy</span>
+                                        <span class="skill-lvl" style="color: var(--color-success);">Expert (L<span
+                                                class="count-up" data-target="5">0</span>)</span>
+                                    </div>
+                                    <div class="skill-progress-mini">
+                                        <div class="skill-progress-bar"
+                                            style="width: 0%; background: var(--color-success);" data-target="92%">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="skill-row animate-fade-in-up delay-500" style="margin-top: 15px;">
+                                <div style="flex: 1;">
+                                    <div
+                                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                        <span class="skill-name">Network Security</span>
+                                        <span class="skill-lvl" style="color: var(--color-primary);">Advanced (L<span
+                                                class="count-up" data-target="4">0</span>)</span>
+                                    </div>
+                                    <div class="skill-progress-mini">
+                                        <div class="skill-progress-bar"
+                                            style="width: 0%; background: var(--color-primary);" data-target="78%">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="skill-row animate-fade-in-up delay-600" style="margin-top: 15px;">
+                                <div style="flex: 1;">
+                                    <div
+                                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                        <span class="skill-name">Compliance IQ</span>
+                                        <span class="skill-lvl" style="color: var(--color-primary-light);">Intermediate
+                                            (L<span class="count-up" data-target="3">0</span>)</span>
+                                    </div>
+                                    <div class="skill-progress-mini">
+                                        <div class="skill-progress-bar"
+                                            style="width: 0%; background: var(--color-primary-light);"
+                                            data-target="62%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="animate-fade-in-up delay-700"
+                            style="margin-top: 25px; font-size: 0.8rem; color: var(--color-text-muted); text-align: center; font-style: italic; border-top: 1px solid var(--color-surface); padding-top: 15px;">
+                            Targeting: <span class="shimmer-effect"
+                                style="color: var(--color-primary-dark); font-weight: 700; padding: 2px 8px; border-radius: 4px;">Expert
+                                (L5)</span> in Compliance by end of Q4
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-header delay-400 animate-fade-in-up">
+                    <h2>Enrolled Courses</h2>
+                    <a href="#">See all (8) →</a>
+                </div>
+
+                <div class="course-grid">
+                    <div class="course-item delay-500 animate-fade-in-up">
+                        <div class="badge badge-success" style="width: fit-content; margin-bottom: 12px;">Certificate
+                            Earned</div>
+                        <h3>Advanced Data Privacy</h3>
+                        <p style="font-size: 0.85rem; color: var(--color-text-muted); margin-bottom: 15px;">
+                            Understanding GDPR, CCPA, and Global Frameworks.</p>
+                        <div class="progress-bar-bg" style="height: 6px; margin-bottom: 15px;">
+                            <div class="progress-bar-fill" style="width: 100%; background: var(--color-success);"></div>
+                        </div>
+                        <div class="course-meta">
+                            <span>24 Lessons</span>
+                            <span>Earned Oct 12</span>
+                        </div>
+                        <button class="btn btn-outline"
+                            style="width: 100%; padding: 0.6rem; font-size: 0.85rem; margin-top: 15px;"
+                            onclick="window.location.href='certificate.html'">View Certificate</button>
+                    </div>
+
+                    <div class="course-item delay-600 animate-fade-in-up">
+                        <div class="badge"
+                            style="background: var(--color-surface); width: fit-content; margin-bottom: 12px; color: var(--color-text-muted);">
+                            Recently Assigned</div>
+                        <h3>Strategic Negotiation</h3>
+                        <p style="font-size: 0.85rem; color: var(--color-text-muted); margin-bottom: 15px;">Enterprise
+                            sales Enablement for Senior Account Execs.</p>
+                        <div class="progress-bar-bg" style="height: 6px; margin-bottom: 15px;">
+                            <div class="progress-bar-fill" style="width: 0%;"></div>
+                        </div>
+                        <div class="course-meta">
+                            <span>12 Lessons</span>
+                            <span>~4.5 Hours</span>
+                        </div>
+                        <button class="btn btn-secondary"
+                            style="width: 100%; padding: 0.6rem; font-size: 0.85rem; margin-top: 15px;"
+                            onclick="APEX_SYSTEM.openCourseOverview('Strategic Negotiation')">Start Path</button>
+                    </div>
+
+                    <div class="course-item delay-600 animate-fade-in-up">
+                        <div class="badge"
+                            style="background: rgba(6, 182, 212, 0.1); color: var(--color-secondary-hover); border: 1px solid rgba(6, 182, 212, 0.2); width: fit-content; margin-bottom: 12px;">
+                            In Progress</div>
+                        <h3>Modern Kubernetes for IT</h3>
+                        <p style="font-size: 0.85rem; color: var(--color-text-muted); margin-bottom: 15px;">
+                            Infrastructure isolation and pod security policies.</p>
+                        <div class="progress-bar-bg" style="height: 6px; margin-bottom: 15px;">
+                            <div class="progress-bar-fill" style="width: 0%;" data-target="15%"></div>
+                        </div>
+                        <div class="course-meta">
+                            <span>32 Lessons</span>
+                            <span>15% Done</span>
+                        </div>
+                        <button class="btn btn-outline"
+                            style="width: 100%; padding: 0.6rem; font-size: 0.85rem; margin-top: 15px;"
+                            onclick="window.location.href='course-player.html'">Continue Lab</button>
+                    </div>
+
+                    <div class="course-item delay-700 animate-fade-in-up">
+                        <div class="badge"
+                            style="background: var(--color-surface); width: fit-content; margin-bottom: 12px; color: var(--color-text-muted);">
+                            Assigned</div>
+                        <h3>Conflict Resolution</h3>
+                        <p style="font-size: 0.85rem; color: var(--color-text-muted); margin-bottom: 15px;">HR Mandatory
+                            training for department leads.</p>
+                        <div class="progress-bar-bg" style="height: 6px; margin-bottom: 15px;">
+                            <div class="progress-bar-fill" style="width: 0%;"></div>
+                        </div>
+                        <div class="course-meta">
+                            <span>8 Lessons</span>
+                            <span>~2 Hours</span>
+                        </div>
+                        <button class="btn btn-outline"
+                            style="width: 100%; padding: 0.6rem; font-size: 0.85rem; margin-top: 15px;"
+                            onclick="APEX_SYSTEM.openSyllabusDrawer('Conflict Resolution')">Open Index</button>
+                    </div>
+                </div>
+
+                <!-- AI Recommendations -->
+                <div class="section-header delay-700 animate-fade-in-up" style="margin-top: var(--space-3xl);">
+                    <h2>Recommended for your career path</h2>
+                </div>
+
+                <div class="rec-grid delay-400 animate-content-reveal">
+                    <div class="rec-card glass-card">
+                        <div class="card-shine"></div>
+                        <div class="rec-thumb"
+                            style="background-image: url('https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&w=600&q=80');">
+                        </div>
+                        <span class="rec-tag">Recommended by HR</span>
+                        <h4 style="margin: 5px 0; font-size: 0.95rem; color: var(--color-primary-dark);">Behavioral UX
+                            for SaaS</h4>
+                        <p style="font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 10px;">Applying
+                            cognitive psychology to SaaS activation loops.</p>
+                        <button class="btn btn-outline"
+                            style="padding: 0.4rem 0.8rem; font-size: 0.75rem; border-width: 1px;"
+                            onclick="APEX_SYSTEM.showToast('Added to Study Queue')">Add to Queue</button>
+                    </div>
+                    <div class="rec-card" style="border-left-color: var(--color-accent);">
+                        <div class="rec-thumb"
+                            style="background-image: url('https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80');">
+                        </div>
+                        <span class="rec-tag" style="color: var(--color-accent);">Skill Gap Alert</span>
+                        <h4 style="margin: 5px 0; font-size: 0.95rem; color: var(--color-primary-dark);">High-Latency
+                            Systems in Go</h4>
+                        <p style="font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 10px;">Deep dive
+                            into microservices and goroutine performance.</p>
+                        <button class="btn btn-outline"
+                            style="padding: 0.4rem 0.8rem; font-size: 0.75rem; border-width: 1px;"
+                            onclick="APEX_SYSTEM.showToast('Added to Study Queue')">Add to Queue</button>
+                    </div>
+                    <div class="rec-card" style="border-left-color: #f43f5e;">
+                        <div class="rec-thumb"
+                            style="background-image: url('https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&q=80');">
+                        </div>
+                        <span class="rec-tag" style="color: #f43f5e;">Trending Now</span>
+                        <h4 style="margin: 5px 0; font-size: 0.95rem; color: var(--color-primary-dark);">Predictive Data
+                            Modeling</h4>
+                        <p style="font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 10px;">Advanced ROI
+                            forecasting and supply-chain analysis.</p>
+                        <button class="btn btn-outline"
+                            style="padding: 0.4rem 0.8rem; font-size: 0.75rem; border-width: 1px;"
+                            onclick="APEX_SYSTEM.showToast('Added to Study Queue')">Add to Queue</button>
+                    </div>
+
+                    <!-- Row 2 to fill gap -->
+                    <div class="rec-card" style="border-left-color: var(--color-primary);">
+                        <div class="rec-thumb"
+                            style="background-image: url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=600&q=80');">
+                        </div>
+                        <span class="rec-tag" style="color: var(--color-primary);">Infrastructure</span>
+                        <h4 style="margin: 5px 0; font-size: 0.95rem; color: var(--color-primary-dark);">Zero-Trust
+                            Cloud Security</h4>
+                        <p style="font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 10px;">Architecting
+                            secure perimeter-less cloud pipelines.</p>
+                        <button class="btn btn-outline"
+                            style="padding: 0.4rem 0.8rem; font-size: 0.75rem; border-width: 1px;"
+                            onclick="APEX_SYSTEM.showToast('Added to Study Queue')">Add to Queue</button>
+                    </div>
+                    <div class="rec-card" style="border-left-color: var(--color-success);">
+                        <div class="rec-thumb"
+                            style="background-image: url('https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=600&q=80');">
+                        </div>
+                        <span class="rec-tag" style="color: var(--color-success);">Performance</span>
+                        <h4 style="margin: 5px 0; font-size: 0.95rem; color: var(--color-primary-dark);">Advanced
+                            Performance Eng.</h4>
+                        <p style="font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 10px;">Core web
+                            vitals and database indexing strategies.</p>
+                        <button class="btn btn-outline"
+                            style="padding: 0.4rem 0.8rem; font-size: 0.75rem; border-width: 1px;"
+                            onclick="APEX_SYSTEM.showToast('Added to Study Queue')">Add to Queue</button>
+                    </div>
+                    <div class="rec-card" style="border-left-color: var(--color-secondary);">
+                        <div class="rec-thumb"
+                            style="background-image: url('https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=400&q=80');">
+                        </div>
+                        <span class="rec-tag" style="color: var(--color-secondary);">Strategy</span>
+                        <h4 style="margin: 5px 0; font-size: 0.95rem; color: var(--color-primary-dark);">AI Product
+                            Strategy</h4>
+                        <p style="font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 10px;">Leveraging
+                            LLMs for operational efficiency.</p>
+                        <button class="btn btn-outline"
+                            style="padding: 0.4rem 0.8rem; font-size: 0.75rem; border-width: 1px;"
+                            onclick="APEX_SYSTEM.showToast('Added to Study Queue')">Add to Queue</button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Column: Context & Community -->
+            <div>
+
+                <!-- Upcoming Card -->
+                <div class="card delay-300 animate-fade-in-up" style="margin-bottom: var(--space-xl);">
+                    <h3 style="font-size: 1.25rem; margin-bottom: var(--space-md);">Critical Dates</h3>
+                    <div class="event-card">
+                        <div class="event-date">
+                            <span class="event-day">12</span>
+                            <span class="event-month">OCT</span>
+                        </div>
+                        <div class="event-info">
+                            <h4>Compliance Deadline</h4>
+                            <p>Complete Security 101 or lose access.</p>
+                        </div>
+                    </div>
+                    <div class="event-card" style="background: #f0f9ff; border-color: #e0f2fe;">
+                        <div class="event-date" style="border-color: #bae6fd;">
+                            <span class="event-day" style="color: var(--color-secondary-hover);">15</span>
+                            <span class="event-month">OCT</span>
+                        </div>
+                        <div class="event-info">
+                            <h4>Live Webinar: Q4 Goals</h4>
+                            <p>Interactive session with CTO Team.</p>
+                        </div>
+                    </div>
+                    <div class="event-card" style="background: #f0fdf4; border-color: #dcfce7;">
+                        <div class="event-date" style="border-color: #bbf7d0;">
+                            <span class="event-day" style="color: var(--color-success);">20</span>
+                            <span class="event-month">OCT</span>
+                        </div>
+                        <div class="event-info">
+                            <h4>Skill Assessment Opens</h4>
+                            <p>Annual engineering proficiency check.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Achievements -->
+                <div class="card delay-400 animate-fade-in-up">
+                    <div class="flex justify-between items-center">
+                        <h3 style="font-size: 1.25rem;">Unlocked Badges</h3>
+                        <span style="font-size: 0.85rem; color: var(--color-primary); font-weight: 700;">Rank #4</span>
+                    </div>
+                    <p style="font-size: 0.8rem; color: var(--color-text-muted); margin-top: 5px;">Maintain your streak
+                        to earn the "Legend" status.</p>
+
+                    <div class="badge-grid">
+                        <div class="badge-slot unlocked" title="Completed 5 courses">
+                            <div class="badge-icon">🌟</div>
+                            <div class="badge-name">Pioneer</div>
+                        </div>
+                        <div class="badge-slot unlocked" title="Perfect Assessment Score">
+                            <div class="badge-icon">🎯</div>
+                            <div class="badge-name">Deadeye</div>
+                        </div>
+                        <div class="badge-slot unlocked" title="Logged in for 7 days straight">
+                            <div class="badge-icon">🔥</div>
+                            <div class="badge-name">7D Streak</div>
+                        </div>
+                        <div class="badge-slot unlocked" title="Helped 5 peers in forum">
+                            <div class="badge-icon">🤝</div>
+                            <div class="badge-name">Helper</div>
+                        </div>
+                        <div class="badge-slot" title="Complete the leadership track (Locked)">
+                            <div class="badge-icon">👑</div>
+                            <div class="badge-name">Leader</div>
+                        </div>
+                        <div class="badge-slot" title="Hidden Achievement (Locked)">
+                            <div class="badge-icon">❓</div>
+                            <div class="badge-name">Mystic</div>
+                        </div>
+                        <div class="badge-slot" title="Contributed to Open Course (Locked)">
+                            <div class="badge-icon">🛠️</div>
+                            <div class="badge-name">Builder</div>
+                        </div>
+                        <div class="badge-slot" title="Fast Learner (Locked)">
+                            <div class="badge-icon">⚡</div>
+                            <div class="badge-name">Flash</div>
+                        </div>
+                        <div class="badge-slot" title="System Safety Badge (Locked)">
+                            <div class="badge-icon">🛡️</div>
+                            <div class="badge-name">Safety</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Community Leaderboard -->
+                <div class="card delay-500 animate-fade-in-up" style="margin-top: var(--space-xl);">
+                    <h3 style="font-size: 1.1rem; margin-bottom: 15px;">Engineering Leaderboard</h3>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <div class="flex justify-between items-center"
+                            style="padding: 8px; border-radius: 8px; background: var(--color-surface); border: 1px solid var(--color-border);">
+                            <div class="flex items-center gap-sm">
+                                <span style="font-weight: 800; color: var(--color-primary-dark); width: 20px;">1.</span>
+                                <span style="font-size: 0.85rem; font-weight: 600;">David Miller</span>
+                            </div>
+                            <span style="font-weight: 700; color: var(--color-secondary-hover);">9,2k XP</span>
+                        </div>
+                        <div class="flex justify-between items-center"
+                            style="padding: 8px; border-radius: 8px; background: var(--color-surface); border: 1px solid var(--color-border);">
+                            <div class="flex items-center gap-sm">
+                                <span style="font-weight: 800; color: var(--color-primary-dark); width: 20px;">2.</span>
+                                <span style="font-size: 0.85rem; font-weight: 600;">Sarah Chen</span>
+                            </div>
+                            <span style="font-weight: 700; color: var(--color-secondary-hover);">8,8k XP</span>
+                        </div>
+                        <div class="flex justify-between items-center"
+                            style="padding: 8px; border-radius: 8px; background: rgba(6, 182, 212, 0.05); border: 1px solid var(--color-secondary);">
+                            <div class="flex items-center gap-sm">
+                                <span style="font-weight: 800; color: var(--color-primary-dark); width: 20px;">4.</span>
+                                <span style="font-size: 0.85rem; font-weight: 700;">Alice Student (You)</span>
+                            </div>
+                            <span style="font-weight: 700; color: var(--color-secondary-hover);">7,4k XP</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Activity Feed -->
+                <div class="card delay-600 animate-fade-in-up" style="margin-top: var(--space-xl);">
+                    <h3 style="font-size: 1.25rem; margin-bottom: var(--space-md);">Recent Activity</h3>
+
+                    <div class="activity-feed">
+                        <div class="activity-item">
+                            <div class="activity-icon"
+                                style="background: rgba(16, 185, 129, 0.1); color: var(--color-success);">✅</div>
+                            <div class="activity-details">
+                                <p>Completed <strong>Data Privacy Fundamentals</strong></p>
+                                <span>2 hours ago</span>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon" style="background: rgba(245, 158, 11, 0.1); color: #d97706;">📝
+                            </div>
+                            <div class="activity-details">
+                                <p>Quiz passed: <strong>Malware Lab</strong> (95%)</p>
+                                <span>Yesterday</span>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon"
+                                style="background: rgba(6, 182, 212, 0.1); color: var(--color-secondary-hover);">🏆
+                            </div>
+                            <div class="activity-details">
+                                <p>Badge Unlocked: <strong>Peer Helper</strong></p>
+                                <span>2 days ago</span>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon"
+                                style="background: var(--color-surface); color: var(--color-text-muted);">▶</div>
+                            <div class="activity-details">
+                                <p>Started <strong>Strategic Negotiation</strong></p>
+                                <span>3 days ago</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Help Link -->
+                <div
+                    style="margin-top: var(--space-xl); padding: var(--space-lg); background: white; border: 1px dashed var(--color-border); border-radius: var(--br-md); text-align: center;">
+                    <p style="font-size: 0.8rem; color: var(--color-text-muted); margin-bottom: 10px;">Need technical
+                        support?</p>
+                    <button class="btn btn-outline" style="width: 100%; font-size: 0.8rem;"
+                        onclick="APEX_SYSTEM.openSupportModal()">Open LMS Tech
+                        Ticket</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+    <script>
+        // Set dynamic name
+        const currentUser = JSON.parse(sessionStorage.getItem('apex_current_user'));
+        if (currentUser && document.getElementById('welcome-msg')) {
+            const firstName = currentUser.name.split(' ')[0];
+            document.getElementById('welcome-msg').innerText = `Welcome back, ${firstName}.`;
+        }
+
+        // Animate Progress Bars
+        setTimeout(() => {
+            const bars = document.querySelectorAll('.progress-bar-fill');
+            bars.forEach(bar => {
+                const target = bar.getAttribute('data-target');
+                if (target) {
+                    bar.style.width = target;
+                }
+            });
+        }, 300);
+    </script>
+</body>
+
+</html>

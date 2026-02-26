@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visual Content Studio | APEX-LMS</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/admin-portal.css">
+    <style>
+        :root {
+            --studio-sidebar-bg: #f8fafc;
+            --studio-canvas-bg: #f1f5f9;
+        }
+
+        .studio-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr 320px;
+            height: calc(100vh - 120px);
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Mobile View Switcher */
+        .mobile-view-tabs {
+            display: none;
+            background: white;
+            padding: 10px 6px;
+            border-bottom: 2px solid var(--color-admin-border);
+            justify-content: center;
+            gap: 6px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .m-tab {
+            font-size: 0.7rem;
+            font-weight: 800;
+            color: var(--color-admin-muted);
+            padding: 8px 12px;
+            border-radius: 20px;
+            border: none;
+            background: #f1f5f9;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            flex: 1;
+            max-width: 110px;
+            text-align: center;
+        }
+
+        .m-tab.active {
+            background: var(--color-admin-secondary);
+            color: white;
+            box-shadow: 0 4px 10px rgba(6, 182, 212, 0.3);
+        }
+
+        /* Sidebar Styling */
+        .asset-sidebar {
+            background: var(--studio-sidebar-bg);
+            border-right: 1px solid var(--color-admin-border);
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        .asset-category {
+            margin-bottom: 30px;
+        }
+
+        .category-title {
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: var(--color-admin-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .asset-item {
+            background: white;
+            border: 1px solid var(--color-admin-border);
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-bottom: 10px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+        }
+
+        .asset-item:hover {
+            border-color: var(--color-admin-secondary);
+            transform: scale(1.02) translateX(4px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .asset-item:active {
+            transform: scale(0.96);
+            background: var(--color-admin-secondary);
+            color: white;
+        }
+
+        /* Visual Canvas */
+        .canvas-area {
+            background: var(--studio-canvas-bg);
+            padding: 50px 40px;
+            overflow-y: auto;
+            position: relative;
+            background-image: radial-gradient(#cbd5e1 1.5px, transparent 1.5px);
+            background-size: 40px 40px;
+        }
+
+        .orchestrator-node {
+            background: white;
+            border: 1px solid var(--color-admin-border);
+            border-radius: 14px;
+            padding: 24px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.08);
+            margin: 0 auto 50px auto;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .orchestrator-node:hover {
+            transform: scale(1.03);
+            border-color: var(--color-admin-secondary);
+        }
+
+        .orchestrator-node.selected {
+            border-color: var(--color-admin-secondary);
+            border-width: 2px;
+            box-shadow: 0 0 0 5px rgba(6, 182, 212, 0.15), 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .node-spine {
+            position: absolute;
+            bottom: -50px;
+            left: 50%;
+            width: 3px;
+            height: 50px;
+            background: var(--color-admin-secondary);
+            opacity: 0.3;
+            transform: translateX(-50%);
+        }
+
+        .node-spine::after {
+            content: '▼';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 10px;
+            color: var(--color-admin-secondary);
+        }
+
+        .orchestrator-node:last-of-type .node-spine {
+            display: none;
+        }
+
+        .node-label {
+            font-size: 0.7rem;
+            font-weight: 800;
+            color: var(--color-admin-muted);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Config Sidebar */
+        .config-sidebar {
+            background: white;
+            border-left: 1px solid var(--color-admin-border);
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .config-group {
+            margin-bottom: 24px;
+        }
+
+        .config-label {
+            font-size: 0.8rem;
+            font-weight: 800;
+            color: var(--color-admin-muted);
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .config-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--color-admin-border);
+            border-radius: 10px;
+            font-size: 0.9rem;
+            background: #f8fafc;
+            transition: all 0.2s;
+        }
+
+        .config-input:focus {
+            outline: none;
+            border-color: var(--color-admin-secondary);
+            background: white;
+        }
+
+        /* Mobile Precision Overrides */
+        @media (max-width: 1200px) {
+            .header-main {
+                padding: 10px 16px;
+            }
+
+            .admin-header {
+                padding-bottom: 0;
+            }
+
+            .admin-nav {
+                padding: 0 16px;
+                gap: 5px;
+            }
+
+            .nav-item {
+                padding: 12px 10px;
+                font-size: 0.8rem;
+            }
+
+            .studio-layout {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+
+            .mobile-view-tabs {
+                display: flex;
+            }
+
+            .asset-sidebar, .config-sidebar {
+                display: none;
+            }
+
+            .asset-sidebar.m-active, .config-sidebar.m-active {
+                display: block;
+                position: fixed;
+                top: 155px; /* Adjusted for tighter header */
+                left: 0;
+                width: 100%;
+                height: calc(100vh - 155px);
+                z-index: 150;
+                background: white;
+                padding: 20px 16px;
+            }
+
+            .canvas-area {
+                padding: 20px 12px;
+                display: block !important;
+            }
+
+            .canvas-area.m-hidden {
+                display: none !important;
+            }
+
+            .orchestrator-node {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body data-current-role="admin">
+
+    <div class="dashboard-layout">
+        <header class="admin-header glass-top">
+            <div class="header-main">
+                <a href="dashboard.html" class="brand">APEX<span>STUDIO</span></a>
+                <div class="flex gap-md align-center hide-mobile">
+                    <div class="tenant-badge shimmer-box">Acme Global Logic</div>
+                    <div style="font-size: 0.75rem; color: rgba(255,255,255,0.5); font-weight: 800;">AUTO-SAVE ACTIVE</div>
+                </div>
+                <div class="user-profile">
+                    <button class="btn btn-primary" style="font-size: 0.85rem; padding: 10px 20px; border-radius: 10px;" onclick="APEX_SYSTEM.notify('Curriculum deployment initiated to 14 clusters...', 'success')">Deploy Sync</button>
+                    <div class="profile-avatar shimmer-box">AA</div>
+                </div>
+            </div>
+            <nav class="admin-nav" style="background: rgba(0,0,0,0.2);">
+                <a href="dashboard.html" class="nav-item">📊 Dashboard</a>
+                <a href="content-studio.html" class="nav-item active">🔨 Content Studio</a>
+                <a href="course-inventory.html" class="nav-item">📚 Inventory</a>
+                <a href="learner-cohorts.html" class="nav-item">👥 Cohorts</a>
+            </nav>
+        </header>
+
+        <!-- Mobile Switcher -->
+        <div class="mobile-view-tabs" id="mobile-orchestrator">
+            <button class="m-tab active" data-view="canvas">Design Canvas</button>
+            <button class="m-tab" data-view="assets">Asset Library</button>
+            <button class="m-tab" data-view="config">Node Settings</button>
+        </div>
+
+        <div class="studio-layout">
+            <!-- Asset Sidebar: DENSE -->
+            <aside class="asset-sidebar" id="pane-assets">
+                <h3 style="margin-bottom: 24px; font-size: 1.2rem;">Asset Repository</h3>
+                
+                <div class="asset-category">
+                    <div class="category-title">Media / Video <span>6</span></div>
+                    <div class="asset-item" onclick="APEX_SYSTEM.openAssetPreview('AI_Foundation_VFX.mp4', 'video')"><span>🎬</span> AI_Foundation_VFX.mp4</div>
+                    <div class="asset-item" onclick="APEX_SYSTEM.openAssetPreview('CEO_Vision_2026.mp4', 'video')"><span>🎬</span> CEO_Vision_2026.mp4</div>
+                    <div class="asset-item" onclick="APEX_SYSTEM.openAssetPreview('Tooling_Overview.mp4', 'video')"><span>🎬</span> Tooling_Overview.mp4</div>
+                    <div class="asset-item" onclick="APEX_SYSTEM.openAssetPreview('Ethics_Debate.mp3', 'video')"><span>🎙️</span> Ethics_Debate.mp3</div>
+                </div>
+
+                <div class="asset-category">
+                    <div class="category-title">Core Documents <span>8</span></div>
+                    <div class="asset-item" onclick="APEX_SYSTEM.openAssetPreview('Neural_Logic_V2.pdf', 'document')"><span>📄</span> Neural_Logic_V2.pdf</div>
+                    <div class="asset-item" onclick="APEX_SYSTEM.openAssetPreview('Dataset_Projections.xlsx', 'document')"><span>📊</span> Dataset_Projections.xlsx</div>
+                    <div class="asset-item" onclick="APEX_SYSTEM.openAssetPreview('Full_Syllabus.epub', 'document')"><span>📙</span> Full_Syllabus.epub</div>
+                    <div class="asset-item" onclick="APEX_SYSTEM.openAssetPreview('Security_Protocols.pdf', 'document')"><span>📄</span> Security_Protocols.pdf</div>
+                </div>
+
+                <div class="asset-category">
+                    <div class="category-title">Interactive Labs <span>4</span></div>
+                    <div class="asset-item" style="border-color: var(--color-admin-accent);" onclick="APEX_SYSTEM.openAssetPreview('Neural_Sandbox_X', 'lab')"><span>⚡</span> Neural_Sandbox_X</div>
+                    <div class="asset-item" style="border-color: var(--color-admin-accent);" onclick="APEX_SYSTEM.openAssetPreview('SQL_Injection_Matrix', 'lab')"><span>⚡</span> SQL_Injection_Matrix</div>
+                    <div class="asset-item" style="border-color: var(--color-admin-accent);" onclick="APEX_SYSTEM.openAssetPreview('API_Gateway_Mock', 'lab')"><span>⚡</span> API_Gateway_Mock</div>
+                </div>
+
+                <button class="btn btn-outline" style="width: 100%; border-radius: 10px; font-weight: 800; font-size: 0.8rem;">+ Upload Advanced Asset</button>
+            </aside>
+
+            <!-- Main Canvas: DENSE (8 modules) -->
+            <main class="canvas-area" id="pane-canvas">
+                <h2 style="font-size: 1.5rem; margin-bottom: 40px; text-align: center;" class="hide-mobile">Program: Enterprise AI Orchestration Suite</h2>
+
+                <!-- Node 1 -->
+                <div class="orchestrator-node selected animate-fade-in-up" data-node="01">
+                    <div class="node-label"><span>Module 01</span> <span style="color:var(--color-success);">● LIVE</span></div>
+                    <h4 style="margin: 0; font-size: 1.15rem;">Foundation: Neural Logic</h4>
+                    <p style="font-size: 0.8rem; color: var(--color-admin-muted); margin-top: 10px;">Fundamental architectures and gradient descent theory.</p>
+                    <div class="node-spine"></div>
+                </div>
+
+                <!-- Node 2 -->
+                <div class="orchestrator-node animate-fade-in-up delay-100" data-node="02">
+                    <div class="node-label"><span>Module 02</span> <span style="color:var(--color-admin-secondary);">● DRAFT</span></div>
+                    <h4 style="margin: 0; font-size: 1.15rem;">Data Pipeline Engineering</h4>
+                    <p style="font-size: 0.8rem; color: var(--color-admin-muted); margin-top: 10px;">ETL processes and dimensional stability analysis.</p>
+                    <div class="node-spine"></div>
+                </div>
+
+                <!-- Node 3 -->
+                <div class="orchestrator-node animate-fade-in-up delay-200" data-node="03">
+                    <div class="node-label"><span>Module 03</span> <span style="color:var(--color-admin-muted);">● LOCKED</span></div>
+                    <h4 style="margin: 0; font-size: 1.15rem;">Vector Space Topology</h4>
+                    <p style="font-size: 0.8rem; color: var(--color-admin-muted); margin-top: 10px;">Proximity metrics and high-dimensional clustering.</p>
+                    <div class="node-spine"></div>
+                </div>
+
+                <!-- Node 4 -->
+                <div class="orchestrator-node animate-fade-in-up delay-300" data-node="04">
+                    <div class="node-label"><span>Module 04</span> <span style="background:#fef3c7; padding:2px 8px; border-radius:4px; font-size:0.6rem;">REVIEW REQUIRED</span></div>
+                    <h4 style="margin: 0; font-size: 1.15rem;">Model Evaluation Matrix</h4>
+                    <p style="font-size: 0.8rem; color: var(--color-admin-muted); margin-top: 10px;">F1 scores, precision-recall curves, and validation loops.</p>
+                    <div class="node-spine"></div>
+                </div>
+
+                <!-- Node 5 -->
+                <div class="orchestrator-node animate-fade-in-up delay-400" data-node="05">
+                    <div class="node-label"><span>Module 05</span></div>
+                    <h4 style="margin: 0; font-size: 1.15rem;">Secure API Deployment</h4>
+                    <p style="font-size: 0.8rem; color: var(--color-admin-muted); margin-top: 10px;">Orchestrating production-ready inference endpoints.</p>
+                    <div class="node-spine"></div>
+                </div>
+
+                <!-- Node 6 -->
+                <div class="orchestrator-node animate-fade-in-up delay-500" data-node="06">
+                    <div class="node-label"><span>Module 06</span></div>
+                    <h4 style="margin: 0; font-size: 1.15rem;">Enterprise Scaling Logics</h4>
+                    <p style="font-size: 0.8rem; color: var(--color-admin-muted); margin-top: 10px;">Load balancing and distributed GPU clusters.</p>
+                    <div class="node-spine"></div>
+                </div>
+
+                <!-- Node 7 -->
+                <div class="orchestrator-node animate-fade-in-up delay-600" data-node="07">
+                    <div class="node-label"><span>Module 07</span></div>
+                    <h4 style="margin: 0; font-size: 1.15rem;">Ethical Vector Guardrails</h4>
+                    <p style="font-size: 0.8rem; color: var(--color-admin-muted); margin-top: 10px;">Bias detection and output filtering protocols.</p>
+                    <div class="node-spine"></div>
+                </div>
+
+                <!-- Node 8 -->
+                <div class="orchestrator-node animate-fade-in-up delay-700" data-node="08">
+                    <div class="node-label"><span>Module 08</span> <span style="color:var(--color-admin-accent);">● FINAL EXAM</span></div>
+                    <h4 style="margin: 0; font-size: 1.15rem;">Orchestration Capstone</h4>
+                    <p style="font-size: 0.8rem; color: var(--color-admin-muted); margin-top: 10px;">End-to-end AI deployment simulation audit.</p>
+                </div>
+            </main>
+
+            <!-- Config Sidebar: DENSE -->
+            <aside class="config-sidebar" id="pane-config">
+                <h3 style="margin-bottom: 24px; font-size: 1.2rem;">Node Configuration</h3>
+                
+                <div class="config-group">
+                    <label class="config-label">Module Hierarchy Name</label>
+                    <input type="text" id="config-title" class="config-input" value="Foundation: Neural Logic">
+                </div>
+
+                <div class="config-group">
+                    <label class="config-label">Target Completion Time</label>
+                    <select class="config-input">
+                        <option>30m - Basic</option>
+                        <option selected>60m - Standard</option>
+                        <option>120m - Advanced</option>
+                    </select>
+                </div>
+
+                <div class="config-group">
+                    <label class="config-label">Grading Weighting (15%)</label>
+                    <input type="range" class="config-input" style="padding:0; height:8px;" oninput="APEX_SYSTEM.notify('Weight sync: ' + this.value + '%', 'info')">
+                </div>
+
+                <div class="config-group">
+                    <label class="config-label">Learning Objectives (Matrix)</label>
+                    <textarea class="config-input" style="height: 120px; resize: none; font-size: 0.8rem;">1. Map gradient descent vectors.
+2. Define layer normalization protocols.
+3. Conduct backpropagation audits.</textarea>
+                </div>
+
+                <div style="margin-top: 30px; border-top: 1px solid var(--color-admin-border); padding-top: 20px;">
+                    <h4 style="margin-bottom: 15px; font-size: 0.9rem;">Infrastructure Tags</h4>
+                    <div class="flex justify-between" style="font-size: 0.85rem; margin-bottom: 12px; font-weight: 700;">
+                        <span>Provision AWS Box</span>
+                        <input type="checkbox" checked>
+                    </div>
+                    <div class="flex justify-between" style="font-size: 0.85rem; margin-bottom: 12px; font-weight: 700;">
+                        <span>Auto-Scale Enabled</span>
+                        <input type="checkbox" checked>
+                    </div>
+                    <div class="flex justify-between" style="font-size: 0.85rem; font-weight: 700;">
+                        <span>Collaborator Sync</span>
+                        <input type="checkbox" checked>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" style="width: 100%; margin-top: 30px; border-radius: 10px;" onclick="APEX_SYSTEM.notify('Node configuration saved permanently.', 'success')">Save Module Logic</button>
+            </aside>
+        </div>
+    </div>
+
+    <script src="../js/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Mobile Tab Logic
+            const tabs = document.querySelectorAll('.m-tab');
+            const panes = {
+                canvas: document.getElementById('pane-canvas'),
+                assets: document.getElementById('pane-assets'),
+                config: document.getElementById('pane-config')
+            };
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    const target = tab.getAttribute('data-view');
+                    
+                    // Hide all but active pane for mobile
+                    if(window.innerWidth < 1200) {
+                        Object.entries(panes).forEach(([key, p]) => {
+                            if(key === target) {
+                                p.classList.add('m-active');
+                                if(key === 'canvas') p.classList.remove('m-hidden');
+                            } else {
+                                p.classList.remove('m-active');
+                                if(key === 'canvas') p.classList.add('m-hidden');
+                            }
+                        });
+                    }
+                });
+            });
+
+            // Node Selection & Perfect Alignment Hover
+            const nodes = document.querySelectorAll('.orchestrator-node');
+            const assets = document.querySelectorAll('.asset-item');
+            const configTitle = document.getElementById('config-title');
+
+            assets.forEach(asset => {
+                asset.addEventListener('click', () => {
+                    assets.forEach(a => {
+                        a.style.background = '';
+                        a.style.color = '';
+                    });
+                    asset.style.background = 'var(--color-admin-secondary)';
+                    asset.style.color = 'white';
+                    APEX_SYSTEM.notify(`Active Asset: ${asset.textContent.trim()}`, 'info');
+                });
+            });
+
+            nodes.forEach(node => {
+                node.addEventListener('click', () => {
+                    nodes.forEach(n => n.classList.remove('selected'));
+                    node.classList.add('selected');
+                    
+                    const title = node.querySelector('h4').textContent;
+                    configTitle.value = title;
+                    
+                    APEX_SYSTEM.notify(`Node Focus: ${title}`, 'info');
+
+                    // If on mobile, switch to config automatically
+                    if(window.innerWidth < 1200) {
+                        document.querySelector('[data-view="config"]').click();
+                    }
+                });
+            });
+
+            // Initial view state for mobile
+            if(window.innerWidth < 1200) {
+                document.querySelector('[data-view="canvas"]').click();
+            }
+
+            // Sync alignment on resize
+            window.addEventListener('resize', () => {
+                if(window.innerWidth > 1200) {
+                    Object.values(panes).forEach(p => {
+                        p.classList.remove('m-active');
+                        p.classList.remove('m-hidden');
+                        p.style.display = '';
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

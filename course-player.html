@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Player | APEX-LMS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: #0f172a;
+            color: white;
+        }
+
+        /* Player Header Layout */
+        .player-header {
+            background: #1e293b;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 var(--space-xl);
+            flex-shrink: 0;
+        }
+
+        .course-nav-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .back-dashboard {
+            color: var(--color-text-muted);
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .back-dashboard:hover {
+            color: white;
+        }
+
+        .progress-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .global-progress-bar {
+            width: 200px;
+            height: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .global-progress-fill {
+            width: 68%;
+            height: 100%;
+            background: linear-gradient(90deg, var(--color-secondary) 0%, var(--color-accent) 100%);
+            border-radius: 4px;
+            box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+        }
+
+        .global-progress-text {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        /* Main Split View */
+        .player-body {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* Sticky Left Sidebar (Syllabus) */
+        .syllabus-sidebar {
+            width: 350px;
+            background: #1e293b;
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            overflow-y: auto;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .module-group {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+        }
+
+        .module-group:last-child {
+            border-bottom: none;
+        }
+
+        .module-title {
+            padding: var(--space-md) var(--space-lg);
+            background: rgba(0, 0, 0, 0.1);
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.9);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .lesson-item {
+            padding: 12px var(--space-lg) 12px 40px;
+            border-left: 3px solid transparent;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .lesson-item:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .lesson-item.active {
+            border-left-color: var(--color-secondary);
+            background: rgba(6, 182, 212, 0.05);
+        }
+
+        .lesson-header-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .lesson-name {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .lesson-item.active .lesson-name {
+            color: white;
+            font-weight: 700;
+        }
+
+        .lesson-icon {
+            position: absolute;
+            left: 15px;
+            top: 12px;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .completed .lesson-icon {
+            color: var(--color-success);
+        }
+
+        .locked .lesson-icon {
+            color: rgba(255, 255, 255, 0.2);
+        }
+
+        .locked .lesson-name {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .lesson-duration {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        /* Right Main Content Area */
+        .content-area {
+            flex: 1;
+            background: #0f172a;
+            overflow-y: auto;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: var(--space-2xl) var(--space-xl);
+        }
+
+        .content-max-width {
+            width: 100%;
+            max-width: 1000px;
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-lg);
+        }
+
+        /* Mock Video Player */
+        .video-container {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #000;
+            border-radius: var(--br-lg);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .video-poster {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #1e1b4b 0%, #0891b2 100%);
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .video-poster::after {
+            content: '';
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(6, 182, 212, 0.2) 0%, transparent 70%);
+            opacity: 0.5;
+        }
+
+        .video-play-btn {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(6, 182, 212, 0.8);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 0 30px rgba(6, 182, 212, 0.4);
+            z-index: 2;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .video-play-btn:hover {
+            background: var(--color-secondary);
+            transform: translate(-50%, -50%) scale(1.1);
+            box-shadow: 0 0 50px rgba(6, 182, 212, 0.6);
+        }
+
+        .video-controls {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 50px;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            gap: 15px;
+        }
+
+        .mock-progress {
+            flex: 1;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 2px;
+        }
+
+        .mock-progress-fill {
+            height: 100%;
+            width: 45%;
+            background: var(--color-secondary);
+            border-radius: 2px;
+            box-shadow: 0 0 10px var(--color-secondary);
+        }
+
+        /* Content Text */
+        .lesson-transcript {
+            background: #1e293b;
+            border-radius: var(--br-lg);
+            padding: var(--space-xl);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .lesson-transcript h2 {
+            color: white;
+            font-size: 2rem;
+            margin-bottom: var(--space-md);
+        }
+
+        .lesson-transcript p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: var(--space-md);
+        }
+
+        .lesson-transcript strong {
+            color: var(--color-secondary);
+        }
+
+        /* Bottom Action Bar */
+        .bottom-action-bar {
+            margin-top: auto;
+            padding-top: var(--space-xl);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    </style>
+    <style>
+        /* Accordion & Lesson Styles */
+        .module-body {
+            display: block;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .module-group.collapsed .module-body {
+            display: none;
+        }
+
+        .module-title i {
+            transition: transform 0.3s;
+            font-style: normal;
+        }
+
+        .module-group.collapsed .module-title i {
+            transform: rotate(-90deg);
+        }
+
+        .player-complete-btn {
+            padding: 1rem 3rem;
+            font-size: 1.1rem;
+            border-radius: 30px;
+            box-shadow: 0 10px 30px rgba(6, 182, 212, 0.4);
+        }
+    </style>
+</head>
+
+<body data-current-role="learner">
+
+    <header class="player-header">
+        <div class="course-nav-title">
+            <a href="learner.html" class="back-dashboard">← Dashboard</a>
+            <div style="width: 1px; height: 20px; background: rgba(255,255,255,0.2);"></div>
+            <span class="hide-mobile">Enterprise Security & Compliance 101</span>
+        </div>
+
+        <div class="progress-container">
+            <div class="global-progress-text">68% Complete</div>
+            <div class="global-progress-bar">
+                <div class="global-progress-fill"></div>
+            </div>
+        </div>
+    </header>
+
+    <div class="player-body">
+
+        <!-- Dark Syllabus Sidebar -->
+        <aside class="syllabus-sidebar">
+
+            <div class="module-group">
+                <div class="module-title" onclick="toggleModule(this)">
+                    <span>Module 1: Threat Landscape Overviews</span>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 0.8rem; color: var(--color-success);">3/3</span>
+                        <i>▼</i>
+                    </div>
+                </div>
+                <div class="module-body">
+                    <div class="lesson-item completed" data-title="Welcome & Executive Overview" data-type="Video"
+                        data-duration="2:45" data-video-id="kqaMIFEz15s">
+                        <span class="lesson-icon">✓</span>
+                        <div class="lesson-header-flex">
+                            <span class="lesson-name">Welcome & Executive Overview</span>
+                        </div>
+                        <span class="lesson-duration">Video • 2:45</span>
+                    </div>
+                    <div class="lesson-item completed" data-title="Review: 2026 Threat Vectors Document"
+                        data-type="Video" data-duration="15 min read" data-video-id="d_t2QRzZbIA">
+                        <span class="lesson-icon">✓</span>
+                        <div class="lesson-header-flex">
+                            <span class="lesson-name">Review: 2026 Threat Vectors Document</span>
+                        </div>
+                        <span class="lesson-duration">Video • 15 min read</span>
+                    </div>
+                    <div class="lesson-item completed" data-title="Social Engineering Real-World Examples"
+                        data-type="Video" data-duration="12:30" data-video-id="YeDcNnIwlB8">
+                        <span class="lesson-icon">✓</span>
+                        <div class="lesson-header-flex">
+                            <span class="lesson-name">Social Engineering Real-World Examples</span>
+                        </div>
+                        <span class="lesson-duration">Video • 12:30</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="module-group">
+                <div class="module-title" onclick="toggleModule(this)">
+                    <span>Module 2: Advanced Phishing Tactics</span>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 0.8rem; color: rgba(255,255,255,0.5);">1/3</span>
+                        <i>▼</i>
+                    </div>
+                </div>
+                <div class="module-body">
+                    <div class="lesson-item completed" data-title="Recognizing Spear Phishing" data-type="Video"
+                        data-duration="10m" data-video-id="3tN5d1C0_Fk">
+                        <span class="lesson-icon">✓</span>
+                        <div class="lesson-header-flex">
+                            <span class="lesson-name">Recognizing Spear Phishing</span>
+                        </div>
+                        <span class="lesson-duration">Video • 10m</span>
+                    </div>
+                    <div class="lesson-item active" data-title="Deep Fake Authentication Risks" data-type="Video"
+                        data-duration="8:15" data-video-id="k_B-gA_gBns">
+                        <span class="lesson-icon" style="color: var(--color-secondary);">▶</span>
+                        <div class="lesson-header-flex">
+                            <span class="lesson-name">Deep Fake Authentication Risks</span>
+                        </div>
+                        <span class="lesson-duration">Video • 8:15</span>
+                    </div>
+                    <div class="lesson-item locked">
+                        <span class="lesson-icon">🔒</span>
+                        <div class="lesson-header-flex">
+                            <span class="lesson-name">Check Your Knowledge: Email Analysis</span>
+                        </div>
+                        <span class="lesson-duration">Assessment / Quiz</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="module-group">
+                <div class="module-title" onclick="toggleModule(this)">
+                    <span>Module 3: Global Data Privacy</span>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 0.8rem; color: rgba(255,255,255,0.3);">0/4</span>
+                        <i>▼</i>
+                    </div>
+                </div>
+                <div class="module-body">
+                    <div class="lesson-item locked" data-title="GDPR vs CCPA Breakdown" data-type="Video"
+                        data-video-id="fA9QCm_mXG8">
+                        <span class="lesson-icon">🔒</span>
+                        <div class="lesson-header-flex">
+                            <span class="lesson-name">GDPR vs CCPA Breakdown</span>
+                        </div>
+                        <span class="lesson-duration">Video • 14:00</span>
+                    </div>
+                    <div class="lesson-item locked">
+                        <span class="lesson-icon">🔒</span>
+                        <div class="lesson-header-flex">
+                            <span class="lesson-name">Handling Data Breaches Correctly</span>
+                        </div>
+                        <span class="lesson-duration">Document • 5 min read</span>
+                    </div>
+                </div>
+            </div>
+
+        </aside>
+
+        <!-- Main Content (Cinematic Player) -->
+        <main class="content-area">
+
+            <div class="content-max-width animate-fade-in-up delay-100">
+
+                <div class="video-container" id="video-wrapper">
+                    <!-- High definition video poster -->
+                    <div class="video-poster" id="vid-poster"></div>
+
+                    <!-- Real Player -->
+                    <iframe id="main-video-player" width="100%" height="100%" src="" frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen style="display: none; border-radius: var(--br-lg);"></iframe>
+
+                    <div class="video-play-btn" id="main-play-btn">▶</div>
+
+                    <div class="video-controls" style="z-index: 3;">
+                        <span style="font-family: monospace; font-size: 0.85rem;" id="current-time">00:00</span>
+                        <div class="mock-progress">
+                            <div class="mock-progress-fill" id="progress-fill"></div>
+                        </div>
+                        <span style="font-family: monospace; font-size: 0.85rem;" id="total-duration">08:15</span>
+                        <span style="font-size: 1.2rem; cursor: pointer; color: white;">⚙</span>
+                        <span style="font-size: 1.2rem; cursor: pointer; color: white;">⛶</span>
+                    </div>
+                </div>
+
+                <div class="lesson-transcript">
+                    <h2 id="lesson-display-title">Deep Fake Authentication Risks</h2>
+                    <p id="lesson-display-desc">In this lesson, we examine one of the most sophisticated attack vectors
+                        emerging in 2026:
+                        <strong>Real-time Deep Fake Authentication bypasses</strong>. As biometric systems become the
+                        standard across enterprise networks, malicious actors are leveraging generative AI to synthesize
+                        voice and facial data to spoof live validation checks.
+                    </p>
+                    <p>Observe the case study from the Q2 breach at Northern Financial. The attackers did not steal a
+                        password; instead, they captured seconds of audio from a public conference and synthesized a
+                        live authorization call to the IT service desk. We will break down exactly how to detect audio
+                        artifacting and implement multi-factor liveness checks to prevent this from happening here.</p>
+                </div>
+
+                <div class="bottom-action-bar">
+                    <button class="btn btn-outline" style="color: white; border-color: rgba(255,255,255,0.3);">←
+                        Previous</button>
+                    <button class="btn btn-secondary player-complete-btn"
+                        onclick="APEX_SYSTEM.completeLesson()">Complete & Continue →</button>
+                </div>
+
+            </div>
+
+        </main>
+
+    </div>
+
+    <!-- Hidden audio/simulations for production ready feel -->
+    <script src="js/script.js"></script>
+    <script>
+        function toggleModule(el) {
+            el.parentElement.classList.toggle('collapsed');
+        }
+
+        const lessonItems = document.querySelectorAll('.lesson-item:not(.locked)');
+        const displayTitle = document.getElementById('lesson-display-title');
+        const totalDuration = document.getElementById('total-duration');
+        const playBtn = document.getElementById('main-play-btn');
+        const progressFill = document.getElementById('progress-fill');
+
+        const videoWrapper = document.getElementById('video-wrapper');
+        const videoPlayer = document.getElementById('main-video-player');
+        const videoPoster = document.getElementById('vid-poster');
+
+        lessonItems.forEach(item => {
+            item.addEventListener('click', () => {
+                // UI feedback
+                lessonItems.forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+
+                // Content update
+                const title = item.getAttribute('data-title');
+                const duration = item.getAttribute('data-duration');
+                const videoId = item.getAttribute('data-video-id');
+                const type = item.getAttribute('data-type');
+
+                displayTitle.innerText = title;
+                totalDuration.innerText = duration.includes('•') ? duration.split('•')[1].trim() : duration;
+
+                // Handle Video Loading
+                if (type === 'Video' && videoId) {
+                    videoPlayer.src = `https://www.youtube.com/embed/${videoId}?rel=0`;
+                    videoPlayer.style.display = 'block';
+                    videoPoster.style.display = 'none';
+                    playBtn.style.display = 'none';
+                } else {
+                    // Placeholder for non-video content
+                    videoPlayer.src = "";
+                    videoPlayer.style.display = 'none';
+                    videoPoster.style.display = 'flex';
+                    videoPoster.innerHTML = `
+                        <div style="text-align: center; color: white;">
+                            <div style="font-size: 3rem; margin-bottom: 10px;">📄</div>
+                            <div style="font-weight: 700;">Document Content: ${title}</div>
+                            <div style="font-size: 0.8rem; opacity: 0.7;">Please refer to the transcript below for detailed information.</div>
+                        </div>
+                    `;
+                    playBtn.style.display = 'none';
+                }
+
+                // Reset progress tracking
+                progressFill.style.width = '0%';
+                progressFill.style.animation = 'none';
+            });
+        });
+
+        playBtn.addEventListener('click', function () {
+            const activeItem = document.querySelector('.lesson-item.active');
+            const videoId = activeItem ? activeItem.getAttribute('data-video-id') : null;
+            const type = activeItem ? activeItem.getAttribute('data-type') : null;
+
+            if (type === 'Video' && videoId) {
+                videoPlayer.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
+                videoPlayer.style.display = 'block';
+                videoPoster.style.display = 'none';
+                this.style.display = 'none';
+            } else {
+                this.style.transform = 'translate(-50%, -50%) scale(0)';
+                progressFill.style.animation = 'playSimulate 10s linear forwards';
+            }
+        });
+
+        // Add dynamic style for mock progress
+        const styleSheet = document.createElement('style');
+        styleSheet.innerHTML = `
+            @keyframes playSimulate {
+                0% { width: 0%; }
+                100% { width: 100%; }
+            }
+        `;
+        document.head.appendChild(styleSheet);
+
+        // Global integration
+        window.APEX_SYSTEM = window.APEX_SYSTEM || {};
+        APEX_SYSTEM.completeLesson = function () {
+            const btn = event.target;
+            btn.innerHTML = 'Saving...';
+            setTimeout(() => {
+                window.location.href = 'assessment.html';
+            }, 800);
+        };
+    </script>
+</body>
+
+</html>

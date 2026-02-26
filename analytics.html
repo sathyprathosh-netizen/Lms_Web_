@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Analytics | APEX-LMS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .sidebar {
+            background: #111827;
+            color: white;
+            width: 280px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: var(--space-xl);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-weight: 800;
+            font-size: 1.5rem;
+            letter-spacing: -1px;
+        }
+
+        .sidebar-header span {
+            color: var(--color-secondary);
+        }
+
+        .nav-item {
+            padding: var(--space-md) var(--space-xl);
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            color: white;
+            background: rgba(255, 255, 255, 0.03);
+            border-left-color: var(--color-secondary);
+        }
+
+        /* Pure CSS Charts base mapping */
+        .chart-container {
+            height: 250px;
+            display: flex;
+            align-items: flex-end;
+            gap: 15px;
+            padding-top: var(--space-xl);
+            position: relative;
+            border-bottom: 1px solid var(--color-border);
+            padding-bottom: 5px;
+            margin-bottom: var(--space-xl);
+        }
+
+        .chart-container::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 50%;
+            width: 100%;
+            height: 1px;
+            background: var(--color-border);
+            border-style: dashed;
+            opacity: 0.5;
+            z-index: 0;
+        }
+
+        .bar-wrap {
+            flex: 1;
+            height: 100%;
+            display: flex;
+            align-items: flex-end;
+            position: relative;
+            z-index: 1;
+            justify-content: center;
+        }
+
+        .bar {
+            width: 60%;
+            background: linear-gradient(to top, var(--color-primary-light) 0%, var(--color-primary) 100%);
+            border-radius: 4px 4px 0 0;
+            position: relative;
+            transition: height 1s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 -5px 15px rgba(30, 27, 75, 0.1);
+            cursor: pointer;
+        }
+
+        .bar:hover {
+            filter: brightness(1.2);
+        }
+
+        .bar:hover .tooltip {
+            opacity: 1;
+            transform: translateY(-30px);
+        }
+
+        .bar-label {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.7rem;
+            color: var(--color-text-muted);
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .tooltip {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translate(-50%, -20px);
+            background: #111827;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            opacity: 0;
+            transition: all 0.2s;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        /* Heatmap Grid */
+        .heatmap-grid {
+            display: grid;
+            grid-template-columns: repeat(24, 1fr);
+            gap: 2px;
+        }
+
+        .heat-cell {
+            aspect-ratio: 1;
+            border-radius: 1px;
+            background: #f3f4f6;
+        }
+
+        .heat-low {
+            background: #dcfce7;
+        }
+
+        .heat-med {
+            background: #86efac;
+        }
+
+        .heat-high {
+            background: #22c55e;
+        }
+
+        .heat-max {
+            background: #15803d;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        th {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--color-text-muted);
+            font-weight: 800;
+        }
+
+        td {
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+    </style>
+</head>
+
+<body data-current-role="superadmin">
+
+    <div class="dashboard-layout">
+
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                APEX<span>Analytics</span>
+            </div>
+            <nav class="sidebar-nav" style="margin-top: 20px;">
+                <div class="nav-item" onclick="window.location.href='super-admin.html'">🏠 Core Dashboard</div>
+                <div class="nav-item active">📈 Traffic & Ingestion</div>
+                <div class="nav-item">👥 Learner Cohort Analysis</div>
+                <div class="nav-item">💰 Tenant Revenue Stream</div>
+                <div class="nav-item">🛡️ Compliance Audit Node</div>
+                <div class="nav-item">🧩 SCORM & xAPI Health</div>
+            </nav>
+            <div style="margin-top: auto; padding: 20px; border-top: 1px solid rgba(255,255,255,0.05);">
+                <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px;">
+                    <p style="font-size: 0.7rem; color: rgba(255,255,255,0.4); margin-bottom: 10px;">Reporting Engine
+                        v2.4</p>
+                    <button class="btn btn-primary" style="width: 100%; font-size: 0.75rem; padding: 8px;">Export Global
+                        PDF</button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Wrapper -->
+        <div class="main-content">
+
+            <header class="topbar">
+                <div class="hide-mobile">
+                    <h2 style="font-size: 1.5rem; margin: 0; font-weight: 800; color: var(--color-primary-dark);">
+                        Macro-Level Intelligence</h2>
+                    <span style="font-size: 0.8rem; color: var(--color-text-muted); font-weight: 600;">Cross-Tenant Data
+                        Aggregation • Global Cluster View</span>
+                </div>
+                <div class="flex gap-sm hide-mobile">
+                    <div class="filter-pill active"
+                        style="padding: 8px 16px; border: 1px solid var(--color-border); border-radius: 20px; font-size: 0.8rem; font-weight: 700; cursor: pointer;">
+                        Live Stream</div>
+                    <div class="filter-pill"
+                        style="padding: 8px 16px; border: 1px solid var(--color-border); border-radius: 20px; font-size: 0.8rem; font-weight: 700; cursor: pointer;">
+                        Last 24h</div>
+                    <div class="filter-pill"
+                        style="padding: 8px 16px; border: 1px solid var(--color-border); border-radius: 20px; font-size: 0.8rem; font-weight: 700; cursor: pointer;">
+                        Q3 Forecast</div>
+                </div>
+            </header>
+
+            <main class="main-scroll">
+
+                <div class="grid grid-cols-12 gap-lg">
+
+                    <!-- Main Chart Area -->
+                    <div class="col-span-8 card animate-fade-in-up delay-100">
+                        <div class="flex justify-between items-center" style="margin-bottom: var(--space-xl);">
+                            <div>
+                                <h3>API Ingestion Density</h3>
+                                <p style="font-size: 0.8rem; color: var(--color-text-muted);">Aggregated request volume
+                                    across all tenanted nodes (last 12 months).</p>
+                            </div>
+                            <span class="badge badge-success">Update: 12s ago</span>
+                        </div>
+
+                        <div class="chart-container" id="mainChart">
+                            <div class="bar-wrap">
+                                <div class="bar secondary" style="height: 40%">
+                                    <div class="tooltip">4.2B req</div><span class="bar-label">Jan</span>
+                                </div>
+                            </div>
+                            <div class="bar-wrap">
+                                <div class="bar secondary" style="height: 55%">
+                                    <div class="tooltip">5.8B req</div><span class="bar-label">Feb</span>
+                                </div>
+                            </div>
+                            <div class="bar-wrap">
+                                <div class="bar secondary" style="height: 45%">
+                                    <div class="tooltip">4.7B req</div><span class="bar-label">Mar</span>
+                                </div>
+                            </div>
+                            <div class="bar-wrap">
+                                <div class="bar secondary" style="height: 70%">
+                                    <div class="tooltip">7.3B req</div><span class="bar-label">Apr</span>
+                                </div>
+                            </div>
+                            <div class="bar-wrap">
+                                <div class="bar secondary" style="height: 65%">
+                                    <div class="tooltip">6.8B req</div><span class="bar-label">May</span>
+                                </div>
+                            </div>
+                            <div class="bar-wrap">
+                                <div class="bar" style="height: 85%">
+                                    <div class="tooltip">8.9B req</div><span class="bar-label">Jun</span>
+                                </div>
+                            </div>
+                            <div class="bar-wrap">
+                                <div class="bar" style="height: 90%">
+                                    <div class="tooltip">9.4B req</div><span class="bar-label">Jul</span>
+                                </div>
+                            </div>
+                            <div class="bar-wrap">
+                                <div class="bar" style="height: 35%">
+                                    <div class="tooltip">3.5B req</div><span class="bar-label">Aug</span>
+                                </div>
+                            </div>
+                            <div class="bar-wrap">
+                                <div class="bar accent" style="height: 80%">
+                                    <div class="tooltip">8.0B req</div><span class="bar-label">Sep</span>
+                                </div>
+                            </div>
+                            <div class="bar-wrap">
+                                <div class="bar accent" style="height: 95%">
+                                    <div class="tooltip">9.5B req</div><span class="bar-label">Oct</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div
+                            style="display: flex; justify-content: space-between; margin-top: 30px; padding-top: 15px; border-top: 1px dashed var(--color-border);">
+                            <div style="display: flex; gap: 20px;">
+                                <div>
+                                    <p style="font-size: 0.7rem; font-weight: 700; color: var(--color-text-muted);">PEAK
+                                        VOLUME</p>
+                                    <p style="font-size: 1.1rem; font-weight: 800; color: var(--color-primary-dark);">
+                                        12.4k req/sec</p>
+                                </div>
+                                <div>
+                                    <p style="font-size: 0.7rem; font-weight: 700; color: var(--color-text-muted);">AVG
+                                        LATENCY</p>
+                                    <p
+                                        style="font-size: 1.1rem; font-weight: 800; color: var(--color-secondary-hover);">
+                                        24.2ms</p>
+                                </div>
+                                <div>
+                                    <p style="font-size: 0.7rem; font-weight: 700; color: var(--color-text-muted);">
+                                        CACHE HIT %</p>
+                                    <p style="font-size: 1.1rem; font-weight: 800; color: var(--color-success);">98.4%
+                                    </p>
+                                </div>
+                            </div>
+                            <button class="btn btn-outline" style="font-size: 0.75rem; border-width: 1px;">View Raw
+                                Shard Data</button>
+                        </div>
+                    </div>
+
+                    <!-- Right Column Metrics -->
+                    <div class="col-span-4 flex-col gap-lg" style="display: flex;">
+                        <div class="card animate-fade-in-left delay-200">
+                            <h3>Active Webhook Pipeline</h3>
+                            <div style="margin-top: 15px;">
+                                <div class="flex justify-between items-center"
+                                    style="margin-bottom: 12px; padding: 8px; background: var(--color-surface); border-radius: 6px;">
+                                    <span style="font-size: 0.8rem; font-weight: 700;">CERT_ISSUED</span>
+                                    <span style="font-size: 0.7rem; color: var(--color-success); font-weight: 700;">●
+                                        Online</span>
+                                </div>
+                                <div class="flex justify-between items-center"
+                                    style="margin-bottom: 12px; padding: 8px; background: var(--color-surface); border-radius: 6px;">
+                                    <span style="font-size: 0.8rem; font-weight: 700;">USER_ENROLL</span>
+                                    <span style="font-size: 0.7rem; color: var(--color-success); font-weight: 700;">●
+                                        Online</span>
+                                </div>
+                                <div class="flex justify-between items-center"
+                                    style="margin-bottom: 12px; padding: 8px; background: var(--color-surface); border-radius: 6px;">
+                                    <span style="font-size: 0.8rem; font-weight: 700;">AUTH_FAIL_STR</span>
+                                    <span style="font-size: 0.7rem; color: var(--color-warning); font-weight: 700;">●
+                                        Retrying...</span>
+                                </div>
+                            </div>
+                            <button class="btn btn-outline"
+                                style="width: 100%; font-size: 0.75rem; border-width: 1px; margin-top: 10px;">Webhook
+                                Configuration Shell</button>
+                        </div>
+
+                        <div class="card animate-fade-in-left delay-300">
+                            <h3>Infrastructure Burn</h3>
+                            <div style="margin-top: 15px;">
+                                <div class="flex justify-between" style="font-size: 0.8rem; margin-bottom: 5px;">
+                                    <strong>CPU Allocation</strong>
+                                    <span>72%</span>
+                                </div>
+                                <div
+                                    style="width: 100%; height: 6px; background: var(--color-surface); border-radius: 3px; margin-bottom: 15px;">
+                                    <div
+                                        style="width: 72%; height: 100%; background: var(--color-primary); border-radius: 3px;">
+                                    </div>
+                                </div>
+                                <div class="flex justify-between" style="font-size: 0.8rem; margin-bottom: 5px;">
+                                    <strong>Memory Footprint</strong>
+                                    <span>48%</span>
+                                </div>
+                                <div
+                                    style="width: 100%; height: 6px; background: var(--color-surface); border-radius: 3px; margin-bottom: 15px;">
+                                    <div
+                                        style="width: 48%; height: 100%; background: var(--color-secondary); border-radius: 3px;">
+                                    </div>
+                                </div>
+                                <div class="flex justify-between" style="font-size: 0.8rem; margin-bottom: 5px;">
+                                    <strong>Disk I/O Peak</strong>
+                                    <span>92%</span>
+                                </div>
+                                <div
+                                    style="width: 100%; height: 6px; background: var(--color-surface); border-radius: 3px;">
+                                    <div
+                                        style="width: 92%; height: 100%; background: var(--color-danger); border-radius: 3px;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Row -->
+                    <div class="col-span-12 card animate-fade-in-up delay-400">
+                        <div class="flex justify-between items-center" style="margin-bottom: var(--space-lg);">
+                            <h3 style="margin: 0;">Cluster Usage Heatmap (Past 14 Days)</h3>
+                            <div style="display: flex; gap: 15px; font-size: 0.7rem; font-weight: 700;">
+                                <span style="display: flex; align-items: center; gap: 5px;">
+                                    <div style="width: 10px; height: 10px; background: #f3f4f6;"></div> Null
+                                </span>
+                                <span style="display: flex; align-items: center; gap: 5px;">
+                                    <div style="width: 10px; height: 10px; background: #dcfce7;"></div> Low
+                                </span>
+                                <span style="display: flex; align-items: center; gap: 5px;">
+                                    <div style="width: 10px; height: 10px; background: #15803d;"></div> Max
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="heatmap-grid" id="heatmap">
+                            <!-- JS Populated Grid -->
+                        </div>
+
+                        <div style="margin-top: 20px; text-align: center;">
+                            <p style="font-size: 0.85rem; color: var(--color-text-muted);">Showing 1,240 nodes across
+                                Global Cluster Mesh.</p>
+                        </div>
+                    </div>
+
+                    <div class="col-span-6 card animate-fade-in-up delay-500">
+                        <h3>Tenant Feature Saturation</h3>
+                        <table style="margin-top: 15px;">
+                            <thead>
+                                <tr>
+                                    <th>Feature Flag</th>
+                                    <th>Saturation</th>
+                                    <th>Impact</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>AI Peer Prediction</td>
+                                    <td>
+                                        <div class="badge"
+                                            style="background: rgba(16, 185, 129, 0.1); color: var(--color-success);">
+                                            High (82%)</div>
+                                    </td>
+                                    <td>↑ Retention</td>
+                                </tr>
+                                <tr>
+                                    <td>SCORM 2004 Engine</td>
+                                    <td>
+                                        <div class="badge"
+                                            style="background: rgba(6, 182, 212, 0.1); color: var(--color-secondary-hover);">
+                                            Med (44%)</div>
+                                    </td>
+                                    <td>← Baseline</td>
+                                </tr>
+                                <tr>
+                                    <td>Mobile App (PWA)</td>
+                                    <td>
+                                        <div class="badge"
+                                            style="background: rgba(245, 158, 11, 0.1); color: var(--color-warning);">
+                                            Low (12%)</div>
+                                    </td>
+                                    <td>↓ Growth</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="col-span-6 card animate-fade-in-up delay-600">
+                        <h3>Compliance Score Matrix</h3>
+                        <div class="grid grid-cols-2 gap-md" style="margin-top: 15px;">
+                            <div style="padding: 15px; border: 1px solid var(--color-border); border-radius: 8px;">
+                                <p style="font-size: 0.7rem; font-weight: 800; color: var(--color-text-muted);">SOC2
+                                    TYPE II</p>
+                                <p style="font-size: 1.5rem; font-weight: 800; color: var(--color-success);">ENABLED</p>
+                            </div>
+                            <div style="padding: 15px; border: 1px solid var(--color-border); border-radius: 8px;">
+                                <p style="font-size: 0.7rem; font-weight: 800; color: var(--color-text-muted);">GDPR
+                                    ENFORCEMENT</p>
+                                <p style="font-size: 1.5rem; font-weight: 800; color: var(--color-success);">STRICT</p>
+                            </div>
+                            <div style="padding: 15px; border: 1px solid var(--color-border); border-radius: 8px;">
+                                <p style="font-size: 0.7rem; font-weight: 800; color: var(--color-text-muted);">HIPAA
+                                    VAULT</p>
+                                <p style="font-size: 1.5rem; font-weight: 800; color: var(--color-warning);">PARTIAL</p>
+                            </div>
+                            <div style="padding: 15px; border: 1px solid var(--color-border); border-radius: 8px;">
+                                <p style="font-size: 0.7rem; font-weight: 800; color: var(--color-text-muted);">FEDRAMP
+                                    RTG</p>
+                                <p style="font-size: 1.5rem; font-weight: 800; color: var(--color-text-muted);">QUEUED
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+    <script>
+        // Draw Heatmap
+        const heatmap = document.getElementById('heatmap');
+        const count = 24 * 7; // 24 columns, 7 rows
+        for (let i = 0; i < count; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'heat-cell';
+            const val = Math.random();
+            if (val > 0.9) cell.classList.add('heat-max');
+            else if (val > 0.7) cell.classList.add('heat-high');
+            else if (val > 0.4) cell.classList.add('heat-med');
+            else if (val > 0.1) cell.classList.add('heat-low');
+            heatmap.appendChild(cell);
+        }
+
+        // Animate Bars
+        setTimeout(() => {
+            document.querySelectorAll('.bar').forEach(bar => {
+                const target = bar.style.height;
+                // already set in style attribute for simplicity in this write
+            });
+        }, 300);
+    </script>
+</body>
+
+</html>

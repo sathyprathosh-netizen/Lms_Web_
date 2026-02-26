@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assessment Engine | APEX-LMS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body {
+            background-color: var(--color-surface);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .quiz-header {
+            background: white;
+            border-bottom: 1px solid var(--color-border);
+            padding: 0 var(--space-xl);
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+            box-shadow: var(--shadow-sm);
+            z-index: 10;
+        }
+
+        .timer-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 16px;
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--color-danger);
+            border-radius: 20px;
+            font-weight: 700;
+            font-family: monospace;
+            font-size: 1.2rem;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .quiz-body {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .quiz-sidebar {
+            width: 320px;
+            background: white;
+            border-right: 1px solid var(--color-border);
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-section {
+            padding: var(--space-lg) var(--space-xl);
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .sidebar-title {
+            font-weight: 800;
+            color: var(--color-primary-dark);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+        }
+
+        .q-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+
+        .q-node {
+            aspect-ratio: 1;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid var(--color-border);
+            background: white;
+            color: var(--color-text-muted);
+        }
+
+        .q-node.active {
+            border-color: var(--color-primary);
+            background: rgba(30, 27, 75, 0.05);
+            color: var(--color-primary-dark);
+        }
+
+        .q-node.answered {
+            background: var(--color-primary);
+            color: white;
+            border-color: transparent;
+        }
+
+        .quiz-main {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--space-3xl);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .question-container {
+            width: 100%;
+            max-width: 850px;
+            transition: all 0.3s ease;
+        }
+
+        .q-meta-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .q-diff {
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: var(--color-warning);
+            background: rgba(245, 158, 11, 0.1);
+            padding: 4px 10px;
+            border-radius: 4px;
+        }
+
+        .q-text {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--color-primary-dark);
+            margin-bottom: var(--space-xl);
+            line-height: 1.4;
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: var(--space-2xl);
+        }
+
+        .option-lbl {
+            display: flex;
+            align-items: center;
+            padding: var(--space-lg);
+            border: 2px solid var(--color-border);
+            border-radius: var(--br-md);
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .option-lbl:hover {
+            border-color: var(--color-secondary);
+        }
+
+        .option-lbl.selected {
+            border-color: var(--color-primary);
+            background: rgba(30, 27, 75, 0.02);
+            font-weight: 700;
+        }
+
+        .radio-custom {
+            width: 22px;
+            height: 22px;
+            border: 2px solid var(--color-border);
+            border-radius: 50%;
+            margin-right: 15px;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .option-lbl.selected .radio-custom::after {
+            content: '';
+            width: 10px;
+            height: 10px;
+            background: var(--color-primary);
+            border-radius: 50%;
+            position: absolute;
+            top: 4px;
+            left: 4px;
+        }
+
+        /* Results Overlay */
+        .results-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(12px);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s;
+        }
+
+        .results-overlay.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .score-card {
+            background: white;
+            border-radius: 20px;
+            padding: 50px;
+            text-align: center;
+            max-width: 550px;
+            width: 90%;
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
+        }
+
+        .score-display {
+            font-size: 5rem;
+            font-weight: 900;
+            color: var(--color-primary);
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .quiz-header {
+                height: auto;
+                padding: 15px;
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .quiz-main {
+                padding: 20px;
+            }
+
+            .q-text {
+                font-size: 1.1rem;
+            }
+
+            .option-lbl {
+                padding: 12px;
+                font-size: 0.9rem;
+            }
+
+            #btn-next {
+                padding: 12px 20px;
+                font-size: 0.9rem;
+                flex: 2;
+            }
+
+            #btn-back {
+                padding: 12px 15px;
+                font-size: 0.9rem;
+                flex: 1;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .timer-badge {
+                font-size: 1rem;
+            }
+
+            .q-action-row {
+                gap: 12px;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body data-current-role="learner">
+
+    <header class="quiz-header">
+        <div class="flex items-center gap-md">
+            <div
+                style="width: 40px; height: 40px; border-radius: 8px; background: var(--color-primary-dark); display: flex; align-items: center; justify-content: center; color: white; font-weight: 800;">
+                A</div>
+            <div>
+                <div style="font-weight: 800; font-size: 1.1rem; color: var(--color-primary-dark); line-height: 1;">
+                    Enterprise Security Logic</div>
+                <div style="font-size: 0.75rem; color: var(--color-text-muted); font-weight: 600; margin-top: 2px;"
+                    class="hide-mobile">CERTIFICATION ID: APEX-CX-1029</div>
+            </div>
+        </div>
+        <div class="timer-badge" id="quiz-timer">⏱ 45:00</div>
+        <div class="flex gap-sm">
+            <button class="btn btn-outline hide-mobile" onclick="window.location.href='course-player.html'">Pause
+                Session</button>
+            <button class="btn btn-primary" onclick="submitQuiz()">Finish Exam</button>
+        </div>
+    </header>
+
+    <div class="quiz-body">
+        <aside class="quiz-sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-title">Question Grid</div>
+                <div class="q-grid" id="question-grid">
+                    <!-- Nodes added by JS -->
+                </div>
+            </div>
+            <div class="sidebar-section">
+                <div class="sidebar-title">Proctor Status</div>
+                <div style="font-size: 0.75rem; color: var(--color-success); font-weight: 700;">● SYSTEM ACTIVE &
+                    MONITORED</div>
+            </div>
+        </aside>
+
+        <main class="quiz-main">
+            <div class="question-container" id="q-container">
+                <div class="q-meta-row">
+                    <span id="q-idx-text"
+                        style="font-size: 0.85rem; font-weight: 800; color: var(--color-text-muted);">QUESTION 1 /
+                        10</span>
+                    <span class="q-diff" id="q-diff-badge">Difficulty: Advanced</span>
+                </div>
+                <div class="q-text" id="q-content-text">Loading question...</div>
+                <div class="options-list" id="options-list"></div>
+
+                <div class="q-action-row"
+                    style="display: flex; justify-content: space-between; align-items: center; margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--color-border);">
+                    <button class="btn btn-outline" id="btn-back" onclick="prevQ()">← Back</button>
+                    <button class="btn btn-primary" id="btn-next" onclick="nextQ()">Next Question →</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Results Overlay -->
+    <div class="results-overlay" id="results-overlay">
+        <div class="score-card">
+            <h2 style="font-weight: 900; color: var(--color-primary-dark);">ASSESSMENT COMPLETE</h2>
+            <div class="score-display" id="finalScore">0%</div>
+            <button class="btn btn-secondary" style="width: 100%; padding: 16px; margin-bottom: 10px;"
+                onclick="window.location.href='certificate.html'">View Certificate</button>
+            <button class="btn btn-outline" style="width: 100%;" onclick="window.location.href='learner.html'">Back to
+                Dashboard</button>
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+    <script>
+        const QUESTIONS = [
+            { text: "A tier-1 infrastructure node reports a sudden spike in outbound encrypted traffic. What is the immediate architectural pivot?", options: ["Reboot cluster", "Divert to sandbox", "Disable IDS", "Wait for maintenance"], correct: 1, diff: "Advanced" },
+            { text: "Which principle limits user access to only what is strictly necessary?", options: ["Universal Access", "Least Privilege (PoLP)", "Open Encryption", "Role-Based Redundancy"], correct: 1, diff: "Foundational" },
+            { text: "Zero Trust architecture is based on which core concept?", options: ["Trust but Verify", "Never Trust, Always Verify", "Edge Security Only", "Password-Mandatory"], correct: 1, diff: "Intermediate" },
+            { text: "What is the primary vulnerability exploited in SQL Injection?", options: ["CPU Overload", "Unsanitized User Input", "Weak BIOS", "Physical Access"], correct: 1, diff: "Advanced" },
+            { text: "Most effective DDoS mitigation at the edge?", options: ["More RAM", "Anycast Rate Limiting", "Reset Passwords", "Disable Monitors"], correct: 1, diff: "Advanced" },
+            { text: "What does MFA stand for?", options: ["Multi-Flow Accounting", "Multi-Factor Authentication", "Main-Frame Alignment", "Manual File Archiving"], correct: 1, diff: "Foundational" },
+            { text: "Responsible for security 'of' the cloud in Shared Responsibility?", options: ["Customer", "CSP (e.g. AWS/Azure)", "ISP", "Government"], correct: 1, diff: "Intermediate" },
+            { text: "Vishing specifically refers to social engineering via:", options: ["Voice/Phone", "Email", "SMS", "Physical Mail"], correct: 0, diff: "Foundational" },
+            { text: "Primary goal of End-to-End Encryption?", options: ["Speed", "Privacy (Only Sender/Receiver)", "Compression", "Translation"], correct: 1, diff: "Intermediate" },
+            { text: "First step in the NIST Incident Response lifecycle?", options: ["Recovery", "Preparation", "Detection", "Containment"], correct: 1, diff: "Advanced" }
+        ];
+
+        let currentIdx = 0;
+        let answers = new Array(QUESTIONS.length).fill(null);
+
+        function initGrid() {
+            const grid = document.getElementById('question-grid');
+            grid.innerHTML = '';
+            for (let i = 0; i < QUESTIONS.length; i++) {
+                const node = document.createElement('div');
+                node.className = 'q-node';
+                node.innerText = i + 1;
+                node.onclick = () => { currentIdx = i; renderQuestion(); };
+                grid.appendChild(node);
+            }
+        }
+
+        function renderQuestion() {
+            const q = QUESTIONS[currentIdx];
+            const container = document.getElementById('q-container');
+            container.style.opacity = '0';
+
+            setTimeout(() => {
+                document.getElementById('q-idx-text').innerText = `QUESTION ${currentIdx + 1} / ${QUESTIONS.length}`;
+                document.getElementById('q-diff-badge').innerText = `Difficulty: ${q.diff}`;
+                document.getElementById('q-content-text').innerText = q.text;
+
+                const optionsList = document.getElementById('options-list');
+                optionsList.innerHTML = '';
+                q.options.forEach((opt, idx) => {
+                    const isSelected = answers[currentIdx] === idx;
+                    const label = document.createElement('label');
+                    label.className = `option-lbl ${isSelected ? 'selected' : ''}`;
+                    label.innerHTML = `<input type="radio" name="q" style="display:none" onchange="saveAnswer(${idx})"><div class="radio-custom"></div><span>${opt}</span>`;
+                    optionsList.appendChild(label);
+                });
+
+                document.querySelectorAll('.q-node').forEach((node, i) => {
+                    node.classList.toggle('active', i === currentIdx);
+                    node.classList.toggle('answered', answers[i] !== null);
+                });
+
+                document.getElementById('btn-back').style.visibility = currentIdx === 0 ? 'hidden' : 'visible';
+                document.getElementById('btn-next').innerText = currentIdx === QUESTIONS.length - 1 ? 'Review & Submit' : 'Next Question →';
+                container.style.opacity = '1';
+            }, 200);
+        }
+
+        function saveAnswer(idx) {
+            answers[currentIdx] = idx;
+            renderQuestion();
+        }
+
+        function nextQ() {
+            if (currentIdx < QUESTIONS.length - 1) { currentIdx++; renderQuestion(); }
+            else submitQuiz();
+        }
+
+        function prevQ() {
+            if (currentIdx > 0) { currentIdx--; renderQuestion(); }
+        }
+
+        function submitQuiz() {
+            const results = document.getElementById('results-overlay');
+            results.classList.add('show');
+            let correct = 0;
+            answers.forEach((ans, i) => { if (ans === QUESTIONS[i].correct) correct++; });
+            const target = Math.round((correct / QUESTIONS.length) * 100);
+            let score = 0;
+            const interval = setInterval(() => {
+                score += 2;
+                document.getElementById('finalScore').innerText = score + '%';
+                if (score >= target) { clearInterval(interval); document.getElementById('finalScore').innerText = target + '%'; }
+            }, 30);
+        }
+
+        initGrid();
+        renderQuestion();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Question Intelligence | APEX-LMS</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/admin-portal.css">
+    <style>
+        .question-card {
+            background: white;
+            border: 1px solid var(--color-admin-border);
+            border-radius: 12px;
+            padding: 24px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        .question-card:hover {
+            transform: scale(1.02) translateY(-4px);
+            border-color: var(--color-admin-secondary);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.06);
+        }
+        .difficulty-indicator {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            font-size: 0.65rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            padding: 4px 10px;
+            border-radius: 6px;
+        }
+        .diff-easy { background: #dcfce7; color: #166534; }
+        .diff-med { background: #e0f2fe; color: #0369a1; }
+        .diff-hard { background: #fef3c7; color: #92400e; }
+        .diff-expert { background: #fee2e2; color: #991b1b; }
+        
+        .tag-pill {
+            font-size: 0.7rem;
+            background: #f1f5f9;
+            color: var(--color-admin-muted);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-weight: 700;
+        }
+    </style>
+</head>
+
+<body data-current-role="admin">
+
+    <div class="dashboard-layout">
+        <header class="admin-header glass-top">
+            <div class="header-main">
+                <a href="dashboard.html" class="brand">APEX<span>LIBRARY</span></a>
+                <div class="tenant-badge shimmer-box hide-mobile">842 Validated Items</div>
+                <div class="user-profile">
+                    <button class="btn btn-primary" onclick="APEX_SYSTEM.notify('Validating cross-linked item logic...', 'info')">Audit All</button>
+                    <div class="profile-avatar">AA</div>
+                </div>
+            </div>
+            <nav class="admin-nav">
+                <a href="dashboard.html" class="nav-item">📊 Dashboard</a>
+                <a href="content-studio.html" class="nav-item">🔨 Studio</a>
+                <a href="course-inventory.html" class="nav-item">📚 Inventory</a>
+                <a href="learner-cohorts.html" class="nav-item">👥 Cohorts</a>
+                <a href="question-library.html" class="nav-item active">🧩 Questions</a>
+            </nav>
+        </header>
+
+        <main class="main-scroll">
+            <div class="admin-grid">
+                
+                <div class="col-span-12">
+                    <div class="flex justify-between items-center" style="margin-bottom: 30px;">
+                        <div>
+                            <h2 style="font-size: 1.8rem;">Intelligence Repository</h2>
+                            <p style="font-size: 0.9rem; color: var(--color-admin-muted);">AI-validated assessment matrix for Acme Enterprise</p>
+                        </div>
+                        <div class="flex gap-md">
+                            <input type="text" placeholder="Search Repo..." style="padding: 12px 20px; border-radius: 10px; border: 1px solid var(--color-admin-border); min-width: 240px;">
+                            <button class="btn btn-premium" style="padding: 12px 24px; border-radius: 10px;" onclick="APEX_SYSTEM.openQuestionDrawer()">+ Create Item</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- High Density Question Grid -->
+                <div id="question-grid" class="col-span-12 grid grid-cols-12 gap-6">
+                <div class="col-span-4 question-card animate-fade-in-up">
+                    <div class="difficulty-indicator diff-med">Intermediate</div>
+                    <div style="font-size: 0.7rem; font-weight: 800; color: var(--color-admin-muted); margin-bottom: 12px;">#Q-ARC-8422</div>
+                    <div style="font-weight: 800; font-size: 1rem; color: var(--color-admin-primary); line-height: 1.4; margin-bottom: 20px;">
+                        Define the primary objective of a 'Zero-Trust' infrastructure model.
+                    </div>
+                    <div class="flex gap-sm" style="flex-wrap: wrap;">
+                        <span class="tag-pill">SECURITY</span>
+                        <span class="tag-pill">THEORY</span>
+                    </div>
+                    <div style="margin-top:20px; font-size: 0.75rem; color: var(--color-admin-muted); border-top:1px solid #f1f5f9; padding-top:15px;">
+                        Linked to: <strong>SecOps Masterclass</strong>
+                    </div>
+                </div>
+
+                <div class="col-span-4 question-card animate-fade-in-up delay-100">
+                    <div class="difficulty-indicator diff-hard">Hard</div>
+                    <div style="font-size: 0.7rem; font-weight: 800; color: var(--color-admin-muted); margin-bottom: 12px;">#Q-ENG-9102</div>
+                    <div style="font-weight: 800; font-size: 1rem; color: var(--color-admin-primary); line-height: 1.4; margin-bottom: 20px;">
+                        Which protocol is most efficient for encrypted real-time data tunneling?
+                    </div>
+                    <div class="flex gap-sm" style="flex-wrap: wrap;">
+                        <span class="tag-pill">NETWORKING</span>
+                        <span class="tag-pill">ENCRYPTION</span>
+                    </div>
+                    <div style="margin-top:20px; font-size: 0.75rem; color: var(--color-admin-muted); border-top:1px solid #f1f5f9; padding-top:15px;">
+                        Linked to: <strong>Infra Sentinels</strong>
+                    </div>
+                </div>
+
+                <div class="col-span-4 question-card animate-fade-in-up delay-200">
+                    <div class="difficulty-indicator diff-easy">Easy</div>
+                    <div style="font-size: 0.7rem; font-weight: 800; color: var(--color-admin-muted); margin-bottom: 12px;">#Q-GEN-0012</div>
+                    <div style="font-weight: 800; font-size: 1rem; color: var(--color-admin-primary); line-height: 1.4; margin-bottom: 20px;">
+                        What does IAM stand for in the context of enterprise security?
+                    </div>
+                    <div class="flex gap-sm" style="flex-wrap: wrap;">
+                        <span class="tag-pill">DEFINITIONS</span>
+                        <span class="tag-pill">FOUNDATIONAL</span>
+                    </div>
+                    <div style="margin-top:20px; font-size: 0.75rem; color: var(--color-admin-muted); border-top:1px solid #f1f5f9; padding-top:15px;">
+                        Linked to: <strong>Core Onboarding</strong>
+                    </div>
+                </div>
+
+                <div class="col-span-4 question-card animate-fade-in-up delay-300">
+                    <div class="difficulty-indicator diff-expert">Expert</div>
+                    <div style="font-size: 0.7rem; font-weight: 800; color: var(--color-admin-muted); margin-bottom: 12px;">#Q-AI-4431</div>
+                    <div style="font-weight: 800; font-size: 1rem; color: var(--color-admin-primary); line-height: 1.4; margin-bottom: 20px;">
+                        Contrast Gradient Descent with Stochastic Backpropagation in LLMs.
+                    </div>
+                    <div class="flex gap-sm" style="flex-wrap: wrap;">
+                        <span class="tag-pill">AI LOGIC</span>
+                        <span class="tag-pill">MATH</span>
+                    </div>
+                    <div style="margin-top:20px; font-size: 0.75rem; color: var(--color-admin-muted); border-top:1px solid #f1f5f9; padding-top:15px;">
+                        Linked to: <strong>Neural Orchestration</strong>
+                    </div>
+                </div>
+
+                <div class="col-span-4 question-card animate-fade-in-up delay-400">
+                    <div class="difficulty-indicator diff-med">Intermediate</div>
+                    <div style="font-size: 0.7rem; font-weight: 800; color: var(--color-admin-muted); margin-bottom: 12px;">#Q-REV-1102</div>
+                    <div style="font-weight: 800; font-size: 1rem; color: var(--color-admin-primary); line-height: 1.4; margin-bottom: 20px;">
+                        Identify the three stages of a high-value procurement negotiation.
+                    </div>
+                    <div class="flex gap-sm" style="flex-wrap: wrap;">
+                        <span class="tag-pill">SALES</span>
+                        <span class="tag-pill">EXECUTION</span>
+                    </div>
+                    <div style="margin-top:20px; font-size: 0.75rem; color: var(--color-admin-muted); border-top:1px solid #f1f5f9; padding-top:15px;">
+                        Linked to: <strong>Strategic Mastery</strong>
+                    </div>
+                </div>
+
+                <div class="col-span-4 question-card animate-fade-in-up delay-500">
+                    <div class="difficulty-indicator diff-med">Intermediate</div>
+                    <div style="font-size: 0.7rem; font-weight: 800; color: var(--color-admin-muted); margin-bottom: 12px;">#Q-ETH-8841</div>
+                    <div style="font-weight: 800; font-size: 1rem; color: var(--color-admin-primary); line-height: 1.4; margin-bottom: 20px;">
+                        What is the primary risk of confirmation bias in training datasets?
+                    </div>
+                    <div class="flex gap-sm" style="flex-wrap: wrap;">
+                        <span class="tag-pill">ETHICS</span>
+                        <span class="tag-pill">BIAS</span>
+                    </div>
+                    <div style="margin-top:20px; font-size: 0.75rem; color: var(--color-admin-muted); border-top:1px solid #f1f5f9; padding-top:15px;">
+                        Linked to: <strong>Ethical Guardrails</strong>
+                    </div>
+                </div>
+
+                </div>
+
+                <div class="col-span-12" style="text-align: center; padding: 40px 0;">
+                    <button class="btn btn-outline" style="padding: 12px 40px; border-radius: 99px; font-weight: 800;">Load 200+ Additional Items</button>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/script.js"></script>
+</body>
+
+</html>

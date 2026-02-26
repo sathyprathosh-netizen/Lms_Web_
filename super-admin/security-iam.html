@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security & IAM Proxy | APEX-LMS</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/super-admin.css">
+    <style>
+        .security-hero {
+            background: linear-gradient(135deg, #450a0a 0%, #1e1b4b 100%);
+            color: white;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: var(--space-lg);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .threat-map-container {
+            height: 400px;
+            background: #000;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #333;
+        }
+
+        .threat-node {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #ef4444;
+            border-radius: 50%;
+            box-shadow: 0 0 15px #ef4444;
+            animation: threat-blink 1.5s infinite;
+        }
+
+        @keyframes threat-blink {
+            0% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.5;
+                transform: scale(1.5);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .forensics-stream {
+            background: #000;
+            color: #ef4444;
+            font-family: monospace;
+            padding: 20px;
+            border-radius: 12px;
+            height: 400px;
+            overflow-y: auto;
+            border: 1px solid #333;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+
+        .log-line {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 5px 0;
+        }
+
+        .log-ts {
+            color: #94a3b8;
+            margin-right: 15px;
+        }
+
+        .shield-viz {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 10px double var(--color-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            animation: shield-rotate 10s linear infinite;
+        }
+
+        @keyframes shield-rotate {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .proxy-card {
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--color-success);
+            margin-bottom: 12px;
+            transition: all 0.2s;
+        }
+
+        .proxy-card:hover {
+            transform: translateX(5px);
+        }
+
+        .proxy-card.alert {
+            border-left-color: var(--color-error);
+            background: #fff1f2;
+        }
+
+        /* Radar Scanning Effect */
+        .radar-scan {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, rgba(239, 68, 68, 0.2) 0deg, transparent 90deg);
+            transform-origin: center;
+            animation: radar-rotate 4s linear infinite;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        @keyframes radar-rotate {
+            from { transform: translate(-50%, -50%) rotate(0deg); }
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        @media (max-width: 1024px) {
+            .threat-map-container {
+                height: 300px;
+            }
+        }
+
+        /* Identity Sentinel Expansion Styles */
+        .risk-card {
+            background: #fff;
+            padding: 24px;
+            border-radius: 16px;
+            border: 1px solid var(--color-border);
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .risk-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+            border-color: var(--color-secondary);
+        }
+
+        .risk-value {
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: var(--color-primary-dark);
+            margin: 10px 0;
+            display: flex;
+            align-items: baseline;
+            gap: 5px;
+        }
+
+        .risk-unit {
+            font-size: 0.9rem;
+            color: var(--color-text-muted);
+            font-weight: 700;
+        }
+
+        .risk-trend {
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .trend-up {
+            color: var(--color-error);
+        }
+
+        .trend-down {
+            color: var(--color-success);
+        }
+
+        .sentinel-indicator {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 32px;
+            height: 32px;
+            background: #f1f5f9;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .pulse-monitoring {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: var(--color-success);
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: sentinel-pulse 2s infinite;
+        }
+
+        @keyframes sentinel-pulse {
+            0% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+            70% { transform: scale(1.1); opacity: 0.8; box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+            100% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        /* Protocol Zero Overlay */
+        .protocol-zero-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(239, 68, 68, 0.4);
+            z-index: 9999;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        .protocol-zero-overlay.active {
+            opacity: 1;
+            animation: alert-flash 1s infinite alternate;
+        }
+
+        @keyframes alert-flash {
+            from { background: rgba(239, 68, 68, 0.2); }
+            to { background: rgba(239, 68, 68, 0.6); }
+        }
+    </style>
+</head>
+
+<body data-current-role="superadmin">
+    <div id="pzero-overlay" class="protocol-zero-overlay"></div>
+
+    <div class="dashboard-layout">
+        <header class="orchestrator-header">
+            <div class="header-main">
+                <a href="../super-admin.html" class="brand">APEX<span>SaaS</span></a>
+                <div class="status-badge"
+                    style="background: rgba(239, 68, 68, 0.1); color: var(--color-error); border-color: rgba(239, 68, 68, 0.2);">
+                    <div class="status-dot"
+                        style="background: var(--color-error); box-shadow: 0 0 8px var(--color-error);"></div> Elevated
+                    Threat Level
+                </div>
+                <div class="user-profile">
+                    <div class="profile-info hide-mobile">
+                        <div class="profile-name">Root Admin</div>
+                        <div class="profile-role">Systems Controller</div>
+                    </div>
+                    <div class="profile-avatar">RA</div>
+                    <button class="btn btn-outline" style="color: white; border-color: rgba(255,255,255,0.2);"
+                        onclick="window.location.href='../login.html'">Logout</button>
+                </div>
+            </div>
+            <nav class="infra-nav">
+                <a href="architectural-command.html" class="nav-item">⛁ Architectural Command</a>
+                <a href="multi-tenancy-engine.html" class="nav-item">🏢 Multi-Tenancy Engine</a>
+                <a href="macro-analytics.html" class="nav-item">📈 Macro Analytics</a>
+                <a href="security-iam.html" class="nav-item active">🔒 Security & IAM Proxy</a>
+            </nav>
+        </header>
+
+        <main class="main-scroll" style="background: #f1f5f9;">
+            <div class="dashboard-grid">
+                <div class="col-span-12 security-hero animate-fade-in-up">
+                    <div class="flex justify-between align-center">
+                        <div>
+                            <h2 style="margin: 0; font-size: 2rem; color: white;">Security & IAM Proxy Sentinel</h2>
+                            <p style="color: rgba(255,255,255,0.6);">Identity Verification, Zero-Trust Tunneling &
+                                Global Threat Mitigation</p>
+                        </div>
+                        <div class="flex gap-md">
+                            <div class="card"
+                                style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); padding: 10px 20px; text-align: center;">
+                                <div style="font-size: 0.7rem; color: rgba(255,255,255,0.4); font-weight: 800;">THREATS
+                                    BLOCKED</div>
+                                <div style="font-size: 1.2rem; font-weight: 900; color: #fbbf24;">42,109 (24H)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Threat Vector Map -->
+                <div class="col-span-12 card animate-fade-in-up delay-100">
+                    <div class="flex justify-between align-center" style="margin-bottom: 20px;">
+                        <div>
+                            <h3 style="margin: 0;">Global Threat Vector Map (Live Monitoring)</h3>
+                            <p class="text-muted" style="font-size: 0.8rem;">Visualizing real-time intrusion attempts &
+                                automated mitigation sequences</p>
+                        </div>
+                        <div class="flex gap-sm">
+                            <span class="badge badge-warning">MITIGATION MODE: AGGRESSIVE</span>
+                            <span class="badge" style="background: var(--color-error); color: white;">DROP RATE:
+                                99.94%</span>
+                            <span class="badge badge-primary">SENTINEL: ON</span>
+                        </div>
+                    </div>
+                    <div class="threat-map-container" id="threat-map"
+                        style="background: radial-gradient(circle at center, #111 0%, #000 100%);">
+                        <div class="radar-scan"></div>
+                        <svg id="attack-vectors"
+                            style="position: absolute; width: 100%; height: 100%; pointer-events: none;">
+                            <!-- Simulated attack vectors (lines) -->
+                            <line class="mesh-line" x1="10%" y1="20%" x2="50%" y2="50%"
+                                style="stroke: rgba(239, 68, 68, 0.4);" />
+                            <line class="mesh-line" x1="90%" y1="15%" x2="50%" y2="50%"
+                                style="stroke: rgba(239, 68, 68, 0.4);" />
+                            <line class="mesh-line" x1="80%" y1="80%" x2="50%" y2="50%"
+                                style="stroke: rgba(239, 68, 68, 0.4);" />
+                        </svg>
+                        <!-- Target Hub -->
+                        <div class="region-blob"
+                            style="top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100px; height: 100px; border: 2px solid var(--color-secondary); z-index: 10;">
+                            <div style="text-align: center;">
+                                <div class="node-dot"
+                                    style="background: var(--color-secondary); box-shadow: 0 0 15px var(--color-secondary); width: 12px; height: 12px; margin: 0 auto 5px;">
+                                </div>
+                                APEX CORE
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Forensic Stream & Zero-Trust Tunnel Status -->
+                <div class="col-span-8 card animate-fade-in-up delay-200" style="display: flex; flex-direction: column;">
+                    <div class="flex justify-between align-center" style="margin-bottom: 20px;">
+                        <h3 style="margin: 0;">Identity Sentinel & Forensic Stream</h3>
+                        <div class="flex gap-sm">
+                            <span class="badge badge-primary" style="font-size: 0.6rem;">WAF: ACTIVE</span>
+                            <span class="badge badge-primary" style="font-size: 0.6rem;">IDS/IPS: ACTIVE</span>
+                        </div>
+                    </div>
+                    <div class="forensics-stream" id="security-stream" style="flex: 1;">
+                        <div class="log-line"><span class="log-ts">14:22:01</span> <span
+                                style="color: #fbbf24;">[WARNING]</span> Potential high-entropy login attempt for
+                            UID:9920 from 185.212.x.x</div>
+                        <div class="log-line"><span class="log-ts">14:22:05</span> <span
+                                style="color: #ef4444;">[BLOCK]</span> Geo-IP Isolation: 12.34.56.78 (RU-MOS-01) -
+                            Blacklisted ASN</div>
+                        <div class="log-line"><span class="log-ts">14:22:12</span> <span
+                                style="color: #10b981;">[POLICY]</span> MFA challenge issued for administrative role
+                            elevation</div>
+                        <div class="log-line"><span class="log-ts">14:22:18</span> <span
+                                style="color: #38bdf8;">[PROXY]</span> Zero-trust tunnel initialized for tnt_8392-acme
+                            (AES-256-GCM)</div>
+                        <div class="log-line"><span class="log-ts">14:22:25</span> <span
+                                style="color: #ef4444;">[DROP]</span> Malformed SQL-injection vector detected in POST
+                            header</div>
+                        <div class="log-line"><span class="log-ts">14:22:30</span> <span
+                                style="color: #10b981;">[IAM]</span> Certificate rotation successful for
+                            Global-Auth-Proxy</div>
+                        <div class="log-line"><span class="log-ts">14:22:38</span> <span
+                                style="color: #fbbf24;">[SENTINEL]</span> Behavioral anomaly detected in user
+                            session_x8k2 - Monitoring...</div>
+                    </div>
+                </div>
+
+                <div class="col-span-4 card animate-fade-in-up delay-200"
+                    style="display: flex; flex-direction: column;">
+                    <div class="shield-viz" style="margin-bottom: 30px;">
+                        <div style="font-size: 3rem; animation: shield-inner-pulse 2s infinite radial-gradient;">🛡️
+                        </div>
+                    </div>
+
+                    <h3 style="margin-bottom: 20px;">Zero-Trust Tunnel Matrix</h3>
+
+                    <div style="flex-grow: 1;">
+                        <div class="proxy-card">
+                            <div class="flex justify-between align-center">
+                                <span style="font-weight: 700; font-size: 0.85rem;">Tunnel US-WEST-01</span>
+                                <span class="badge badge-success" style="font-size: 0.6rem;">SECURE</span>
+                            </div>
+                            <div class="health-mini" style="margin-top: 5px;"><span>Throughput</span><span>8.4 MB/s</span></div>
+                            <div class="health-mini"><span>Handshake</span><span>0.4ms</span></div>
+                        </div>
+                        <div class="proxy-card" style="border-left-color: var(--color-secondary);">
+                            <div class="flex justify-between align-center">
+                                <span style="font-weight: 700; font-size: 0.85rem;">Tunnel EU-CENTRAL-01</span>
+                                <span class="badge badge-success" style="font-size: 0.6rem;">SECURE</span>
+                            </div>
+                            <div class="health-mini" style="margin-top: 5px;"><span>Throughput</span><span>12.1 MB/s</span></div>
+                            <div class="health-mini"><span>Handshake</span><span>1.2ms</span></div>
+                        </div>
+                        <div class="proxy-card">
+                            <div class="flex justify-between align-center">
+                                <span style="font-weight: 700; font-size: 0.85rem;">Tunnel AP-SOUTHEAST-01</span>
+                                <span class="badge badge-success" style="font-size: 0.6rem;">SECURE</span>
+                            </div>
+                            <div class="health-mini" style="margin-top: 5px;"><span>Throughput</span><span>4.2 MB/s</span></div>
+                            <div class="health-mini"><span>Handshake</span><span>2.1ms</span></div>
+                        </div>
+                        <div class="proxy-card alert" style="background: rgba(239, 68, 68, 0.05);">
+                            <div class="flex justify-between align-center">
+                                <span style="font-weight: 700; font-size: 0.85rem;">Tunnel SA-EAST-01</span>
+                                <span class="badge badge-warning"
+                                    style="background: #fbbf24; color: #92400e; font-size: 0.6rem;">RE-KEYING</span>
+                            </div>
+                            <div class="health-mini" style="margin-top: 5px;"><span>Throughput</span><span>0.0 MB/s</span></div>
+                            <div class="health-mini"><span>Handshake</span><span>SYNC_FAIL</span></div>
+                        </div>
+                        <div class="proxy-card">
+                            <div class="flex justify-between align-center">
+                                <span style="font-weight: 700; font-size: 0.85rem;">Tunnel ME-SOUTH-01</span>
+                                <span class="badge badge-success" style="font-size: 0.6rem;">SECURE</span>
+                            </div>
+                            <div class="health-mini" style="margin-top: 5px;"><span>Throughput</span><span>1.5 MB/s</span></div>
+                            <div class="health-mini"><span>Handshake</span><span>1.8ms</span></div>
+                        </div>
+
+                        <!-- Proxy Performance Analytics -->
+                        <div style="margin-top: 20px; padding: 15px; background: #f8fafc; border-radius: 8px; border: 1px dashed #cbd5e1;">
+                            <div style="font-size: 0.65rem; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 10px;">Proxy Performance Metrics</div>
+                            <div class="flex justify-between" style="margin-bottom: 8px;">
+                                <span style="font-size: 0.75rem; color: #475569;">Avg Inspection Latency</span>
+                                <span style="font-size: 0.75rem; font-weight: 700; color: #10b981;">0.42ms</span>
+                            </div>
+                            <div style="height: 4px; background: #e2e8f0; border-radius: 2px; overflow: hidden;">
+                                <div style="width: 35%; height: 100%; background: #10b981;"></div>
+                            </div>
+                            <div class="flex justify-between" style="margin-top: 12px; margin-bottom: 8px;">
+                                <span style="font-size: 0.75rem; color: #475569;">Packet Drop Rate</span>
+                                <span style="font-size: 0.75rem; font-weight: 700; color: #64748b;">0.002%</span>
+                            </div>
+                            <div style="height: 4px; background: #e2e8f0; border-radius: 2px; overflow: hidden;">
+                                <div style="width: 5%; height: 100%; background: #3b82f6;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #f1f5f9;">
+                        <h4
+                            style="font-size: 0.7rem; font-weight: 800; color: #64748b; margin-bottom: 12px; text-transform: uppercase;">
+                            Mitigation Control</h4>
+                        <div class="flex flex-col gap-sm">
+                            <div class="flex justify-between align-center" style="margin-bottom: 10px;">
+                                <span style="font-size: 0.8rem; font-weight: 600;">Automated IP Ban</span>
+                                <div id="ip-ban-toggle" class="toggle-switch active" 
+                                    onclick="toggleIPBan()"
+                                    style="width: 34px; height: 20px; background: #10b981; border-radius: 10px; position: relative; cursor: pointer; transition: background 0.3s;">
+                                    <div id="toggle-knob"
+                                        style="width: 16px; height: 16px; background: white; border-radius: 50%; position: absolute; right: 2px; top: 2px; transition: all 0.3s;">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex gap-sm">
+                                <button class="btn btn-outline" onclick="rotateKeys()" style="flex: 1; font-size: 0.7rem;">Rotate Keys</button>
+                                <button class="btn btn-outline" onclick="purgeSessions()" style="flex: 1; font-size: 0.7rem;">Purge
+                                    Sessions</button>
+                            </div>
+                            <button class="btn btn-primary" id="btn-protocol-zero"
+                                onclick="initiateProtocolZero()"
+                                style="width: 100%; margin-top: 5px; background: var(--color-error); border-color: var(--color-error);">INITIATE
+                                PROTOCOL ZERO</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Identity Risk & Biometric Integrity Grid -->
+                <div class="col-span-4 risk-card animate-fade-in-up delay-300">
+                    <div class="sentinel-indicator">🔑</div>
+                    <div style="font-size: 0.7rem; font-weight: 800; color: #64748b; text-transform: uppercase;">MFA Sentinel Strength</div>
+                    <div class="risk-value">
+                        <span id="stat-mfa" data-target="99.8">0</span>
+                        <span class="risk-unit">%</span>
+                    </div>
+                    <div class="risk-trend trend-down">
+                        <span>↓ 0.2% Bypass Attempts</span>
+                    </div>
+                    <p class="text-muted" style="font-size: 0.75rem; margin-top: 15px;">Global success rate of hardware-backed multi-factor challenges.</p>
+                </div>
+
+                <div class="col-span-4 risk-card animate-fade-in-up delay-400">
+                    <div class="sentinel-indicator">👤</div>
+                    <div style="font-size: 0.7rem; font-weight: 800; color: #64748b; text-transform: uppercase;">Biometric Integrity</div>
+                    <div class="risk-value">
+                        <span id="stat-biometric" data-target="98.4">0</span>
+                        <span class="risk-unit">%</span>
+                    </div>
+                    <div class="risk-trend trend-up">
+                        <span style="color: var(--color-success);">↑ 1.4% Accuracy</span>
+                    </div>
+                    <p class="text-muted" style="font-size: 0.75rem; margin-top: 15px;">Facial & Fingerprint verification confidence across edge touchpoints.</p>
+                </div>
+
+                <div class="col-span-4 risk-card animate-fade-in-up delay-500">
+                    <div class="sentinel-indicator">🧠</div>
+                    <div style="font-size: 0.7rem; font-weight: 800; color: #64748b; text-transform: uppercase;">Session Entropy / Risk</div>
+                    <div class="risk-value">
+                        <span id="stat-entropy" data-target="12.5">0</span>
+                        <span class="risk-unit">bits</span>
+                    </div>
+                    <div class="risk-trend trend-down">
+                        <span style="color: var(--color-success);">NORMAL RANGE</span>
+                    </div>
+                    <p class="text-muted" style="font-size: 0.75rem; margin-top: 15px;">Detecting behavioral anomalies in administrative session fingerprints.</p>
+                </div>
+
+                <!-- Strategic Security Posture -->
+                <div class="col-span-12 card animate-fade-in-up delay-600" style="background: white; border-top: 4px solid var(--color-primary); padding: 25px;">
+                    <div style="display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 40px; align-items: center;">
+                        <div>
+                            <h3 style="margin: 0; font-size: 1.2rem;">Sentinel Monitoring Active</h3>
+                            <div class="flex align-center" style="margin-top: 8px;">
+                                <span class="pulse-monitoring"></span>
+                                <span style="font-size: 0.85rem; font-weight: 800; color: var(--color-success); letter-spacing: 0.5px;">ALL IDENTITY VECTORS REINFORCED</span>
+                            </div>
+                        </div>
+                        
+                        <div style="padding-left: 40px; border-left: 1px solid #f1f5f9;">
+                            <div style="font-size: 0.65rem; color: #64748b; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;">Last Key Rotation</div>
+                            <div style="font-size: 1.1rem; font-weight: 900; color: var(--color-primary-dark);">14m 22s ago</div>
+                        </div>
+
+                        <div style="padding-left: 40px; border-left: 1px solid #f1f5f9;">
+                            <div style="font-size: 0.65rem; color: #64748b; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;">Active Proxy Tunnels</div>
+                            <div style="font-size: 1.1rem; font-weight: 900; color: var(--color-secondary);">1,284 <span style="font-size: 0.8rem; color: #94a3b8; font-weight: 700;">/ 1,284</span></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const map = document.getElementById('threat-map');
+        const stream = document.getElementById('security-stream');
+
+        // Random threat nodes
+        for (let i = 0; i < 12; i++) {
+            const node = document.createElement('div');
+            node.className = 'threat-node';
+            node.style.top = Math.random() * 80 + 10 + '%';
+            node.style.left = Math.random() * 80 + 10 + '%';
+            node.style.animationDelay = Math.random() * 2 + 's';
+            map.appendChild(node);
+        }
+
+        // Animation logic
+        function animateValue(obj, start, end, duration) {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const value = (progress * (end - start) + start);
+                
+                if (end % 1 === 0) {
+                    obj.innerHTML = Math.floor(value).toLocaleString();
+                } else {
+                    obj.innerHTML = value.toFixed(1);
+                }
+
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const mfa = document.getElementById('stat-mfa');
+            const biometric = document.getElementById('stat-biometric');
+            const entropy = document.getElementById('stat-entropy');
+
+            setTimeout(() => {
+                animateValue(mfa, 0, parseFloat(mfa.dataset.target), 1500);
+                animateValue(biometric, 0, parseFloat(biometric.dataset.target), 1500);
+                animateValue(entropy, 0, parseFloat(entropy.dataset.target), 1500);
+            }, 500);
+        });
+
+        // Live log stream simulation
+        const logMsgs = [
+            "[DROP] Packet rejected: Malformed header at Node_09",
+            "[WAF] Sanitized GET request param from ID:221",
+            "[AUTH] Token rotation sequence... COMPLETE",
+            "[SHIELD] Automated IP-ban: 212.xx.xx.xx (DDOS attempt)",
+            "[IAM] Policy update sync: 4/4 Regions SUCCESS",
+            "[PROXY] Zero-trust tunnel re-initialized Node_42",
+            "[SENTINEL] Biometric mismatch at South-Asia-02: BLOCKED",
+            "[MFA] Hardware security key verified for UID:8812",
+            "[ENTROPY] Velocity anomaly detected for Admin_Apex: LOGGED"
+        ];
+
+        // Control Functions
+        function addLog(msg, color = '#10b981') {
+            const time = new Date().toLocaleTimeString();
+            const div = document.createElement('div');
+            div.className = 'log-line';
+            div.innerHTML = `<span class="log-ts">${time}</span> <span style="color: ${color}">[SENTINEL]</span> ${msg}`;
+            stream.insertBefore(div, stream.firstChild);
+            if (stream.children.length > 30) stream.removeChild(stream.lastChild);
+        }
+
+        function toggleIPBan() {
+            const toggle = document.getElementById('ip-ban-toggle');
+            const knob = document.getElementById('toggle-knob');
+            const isActive = toggle.classList.toggle('active');
+            
+            if (isActive) {
+                toggle.style.background = '#10b981';
+                knob.style.right = '2px';
+                knob.style.left = 'auto';
+                addLog("Automated IP Ban: ENABLED", "#10b981");
+            } else {
+                toggle.style.background = '#94a3b8';
+                knob.style.right = 'auto';
+                knob.style.left = '2px';
+                addLog("Automated IP Ban: DISABLED (Warning: Perimeter Vulnerable)", "#fbbf24");
+            }
+        }
+
+        function rotateKeys() {
+            addLog("Initiating RSA-4096 Key Rotation Sequence...", "#38bdf8");
+            setTimeout(() => addLog("Propagating keys to Global Edge Nodes...", "#38bdf8"), 800);
+            setTimeout(() => {
+                addLog("Key Rotation Complete. All sessions re-verified.", "#10b981");
+                const timestamp = document.querySelectorAll('[style*="font-size: 1.1rem"]')[0];
+                if (timestamp) timestamp.innerHTML = "Just now";
+            }, 2000);
+        }
+
+        function purgeSessions() {
+            if (confirm("CRITICAL: This will terminate all active administrative and tenant sessions. Proceed?")) {
+                addLog("TERMINATING all active Zero-Trust tunnels...", "#ef4444");
+                setTimeout(() => addLog("Purging Session-DB Redis clusters...", "#ef4444"), 1000);
+                setTimeout(() => addLog("Global Session Purge SUCCESS. 1,284 sessions invalidated.", "#10b981"), 2500);
+            }
+        }
+
+        let pulseZeroActive = false;
+        function initiateProtocolZero() {
+            const overlay = document.getElementById('pzero-overlay');
+            const btn = document.getElementById('btn-protocol-zero');
+            
+            if (!pulseZeroActive) {
+                if (confirm("WARNING: INITIATING PROTOCOL ZERO. This will activate global lockdown mode. Are you sure?")) {
+                    pulseZeroActive = true;
+                    overlay.classList.add('active');
+                    btn.innerHTML = "ABORT PROTOCOL ZERO";
+                    btn.style.background = "#000";
+                    
+                    addLog("CRITICAL: PROTOCOL ZERO ACTIVATED", "#ef4444");
+                    addLog("Engaging total network isolation...", "#ef4444");
+                    addLog("Dropping all non-root ingress traffic...", "#ef4444");
+                }
+            } else {
+                pulseZeroActive = false;
+                overlay.classList.remove('active');
+                btn.innerHTML = "INITIATE PROTOCOL ZERO";
+                btn.style.background = "var(--color-error)";
+                addLog("System Restored. Protocol Zero Aborted.", "#38bdf8");
+            }
+        }
+
+        setInterval(() => {
+            const time = new Date().toLocaleTimeString();
+            const msg = logMsgs[Math.floor(Math.random() * logMsgs.length)];
+            const div = document.createElement('div');
+            div.className = 'log-line';
+            div.innerHTML = `<span class="log-ts">${time}</span> ${msg}`;
+            stream.insertBefore(div, stream.firstChild);
+            if (stream.children.length > 30) stream.removeChild(stream.lastChild);
+        }, 3000);
+    </script>
+</body>
+
+</html>

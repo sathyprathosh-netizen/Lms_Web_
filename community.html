@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community Hub | APEX-LMS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* Community Unique Components */
+        .social-layout {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: var(--space-2xl);
+            margin-top: var(--space-xl);
+        }
+
+        .post-card {
+            background: white;
+            border-radius: var(--br-xl);
+            border: 1px solid var(--color-border);
+            padding: 30px;
+            margin-bottom: 25px;
+            display: flex;
+            gap: 20px;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .post-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--color-secondary);
+        }
+
+        .user-id {
+            width: 65px;
+            height: 65px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 1.4rem;
+            flex-shrink: 0;
+            background: var(--color-surface);
+            border: 2px solid white;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .p-content {
+            flex: 1;
+        }
+
+        .p-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .u-name {
+            font-weight: 800;
+            font-size: 1.05rem;
+            color: var(--color-primary-dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .b-time {
+            font-size: 0.75rem;
+            color: var(--color-text-muted);
+            font-weight: 700;
+        }
+
+        .p-body {
+            font-size: 1rem;
+            color: var(--color-text-main);
+            line-height: 1.6;
+        }
+
+        .highlight-milestone {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--br-md);
+            padding: 20px;
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-left: 4px solid var(--color-secondary);
+        }
+
+        .p-actions {
+            display: flex;
+            gap: 25px;
+            margin-top: 25px;
+            padding-top: 15px;
+            border-top: 1px solid var(--color-surface);
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: #64748b;
+        }
+
+        .p-actions span {
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .p-actions span:hover {
+            color: var(--color-primary);
+        }
+
+        /* Leaderboard Sidebar */
+        .guild-card {
+            background: white;
+            border-radius: var(--br-xl);
+            border: 1px solid var(--color-border);
+            padding: 30px;
+            position: sticky;
+            top: 100px;
+        }
+
+        .rank-entry {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            background: var(--color-surface);
+            transition: all 0.2s;
+        }
+
+        .rank-entry.me {
+            background: rgba(6, 182, 212, 0.05);
+            border: 1px solid var(--color-secondary);
+        }
+
+        .r-num {
+            font-weight: 900;
+            font-size: 1rem;
+            width: 25px;
+            color: var(--color-primary-light);
+        }
+
+        .r-info {
+            flex: 1;
+        }
+
+        .r-name {
+            font-weight: 700;
+            font-size: 0.9rem;
+            display: block;
+        }
+
+        .r-xp {
+            font-size: 0.7rem;
+            font-weight: 800;
+            color: var(--color-secondary-hover);
+            text-transform: uppercase;
+        }
+
+        .l-badge {
+            font-size: 0.65rem;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 4px;
+            background: white;
+            color: var(--color-text-muted);
+            border: 1px solid var(--color-border);
+        }
+
+        @media (max-width: 1100px) {
+            .social-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body data-current-role="learner">
+
+    <!-- Unified Header -->
+    <header class="app-header">
+        <div class="container">
+            <div class="logo" onclick="window.location.href='learner.html'">APEX<span>LMS</span></div>
+            <nav class="app-nav">
+                <a href="learner.html">My Workspace</a>
+                <a href="certificate.html">Wallet</a>
+                <a href="catalog.html">Catalog</a>
+                <a href="community.html" class="active">Community</a>
+            </nav>
+            <div class="user-profile">
+                <div style="text-align: right;" class="hide-mobile">
+                    <div style="font-weight: 700; font-size: 0.95rem; color: var(--color-primary-dark);"
+                        id="global-user-name">Alice Student</div>
+                    <div style="font-size: 0.75rem; color: var(--color-text-muted); font-weight: 600;"
+                        id="global-user-role">ENTERPRISE LEARNER</div>
+                </div>
+                <div
+                    style="width: 44px; height: 44px; background: var(--color-accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--color-primary-dark); font-weight: 800; border: 2px solid white; box-shadow: var(--shadow-sm);">
+                    AL</div>
+                <button class="btn btn-outline hide-mobile"
+                    style="padding: 0.5rem 1rem; font-size: 0.85rem; margin-left: 8px; border-width: 1px;"
+                    id="btn-logout">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="workspace container">
+
+        <div class="section-header animate-title-reveal"
+            style="align-items: center; margin-bottom: 40px; display: flex; justify-content: space-between;">
+            <div style="flex: 1;">
+                <h2 style="font-size: 2.2rem; font-weight: 900; color:var(--color-primary-dark); margin: 0;">Learner
+                    Collective</h2>
+                <p style="color:var(--color-text-muted); font-size: 1.1rem; margin-top: 8px;">Live performance
+                    intelligence across the Engineering Guild.</p>
+            </div>
+            <div class="flex gap-md animate-content-reveal delay-200"
+                style="display: flex; align-items: center; gap: 15px;">
+                <button class="btn btn-outline"
+                    style="padding: 12px 24px; border-width: 1.5px; border-radius: 50px; font-weight: 700; background: white;">Global
+                    Stats</button>
+                <button class="btn btn-primary"
+                    style="padding: 12px 30px; border-radius: 50px; font-weight: 700; box-shadow: var(--shadow-glow);">📢
+                    Share Milestone</button>
+            </div>
+        </div>
+
+        <div class="social-layout">
+
+            <main class="feed-viewport animate-content-reveal delay-300">
+
+                <!-- Post 1 -->
+                <div class="post-card glass-card">
+                    <div class="user-id" style="background: #e0f2fe; color: #0369a1;">DM</div>
+                    <div class="p-content">
+                        <div class="p-header">
+                            <span class="u-name">David Miller <span
+                                    style="font-size: 0.6rem; background: #eab308; color: white; padding: 2px 6px; border-radius: 10px;">L12
+                                    EXPERT</span></span>
+                            <span class="b-time">15m ago</span>
+                        </div>
+                        <p class="p-body">The new Zero Trust labs are incredible. I just finalized the pod security
+                            policy simulation. If anyone is stuck on the SPIFFE attestation, feel free to ping me!</p>
+                        <div class="highlight-milestone">
+                            <div style="font-size: 2rem;">🏆</div>
+                            <div>
+                                <span
+                                    style="font-size: 0.7rem; font-weight: 800; color: var(--color-secondary-hover); text-transform: uppercase;">Credential
+                                    Earned</span>
+                                <h4 style="margin:5px 0 0; font-size: 1.1rem; color: var(--color-primary-dark);">
+                                    Infrastructure Security Master</h4>
+                            </div>
+                        </div>
+                        <div class="p-actions">
+                            <span>🚀 48 Kudos</span>
+                            <span>💬 12 Comments</span>
+                            <span>🔗 Share</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Post 2 -->
+                <div class="post-card glass-card delay-400 animate-content-reveal">
+                    <div class="user-id" style="background: #fdf2f8; color: #be185d;">SC</div>
+                    <div class="p-content">
+                        <div class="p-header">
+                            <span class="u-name">Sarah Chen <span
+                                    style="font-size: 0.6rem; background: #10b981; color: white; padding: 2px 6px; border-radius: 10px;">L10
+                                    MASTER</span></span>
+                            <span class="b-time">2h ago</span>
+                        </div>
+                        <p class="p-body">Reached a 30-day streak in the Cloud Architecture track! Consistency is the
+                            only way to master fragmented identities across multi-cloud infrastructure.</p>
+                        <div class="highlight-milestone" style="border-left-color: #f43f5e;">
+                            <div style="font-size: 2rem;">🔥</div>
+                            <div>
+                                <span
+                                    style="font-size: 0.7rem; font-weight: 800; color: #f43f5e; text-transform: uppercase;">Milestone
+                                    Reached</span>
+                                <h4 style="margin:5px 0 0; font-size: 1.1rem; color: var(--color-primary-dark);">30-Day
+                                    Learning Supernova</h4>
+                            </div>
+                        </div>
+                        <div class="p-actions">
+                            <span>👏 156 Kudos</span>
+                            <span>💬 28 Comments</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Post 3 -->
+                <div class="post-card glass-card delay-500 animate-content-reveal">
+                    <div class="user-id" style="background: var(--color-accent); color: var(--color-primary-dark);">AS
+                    </div>
+                    <div class="p-content">
+                        <div class="p-header">
+                            <span class="u-name">Alice Student (You)</span>
+                            <span class="b-time">4h ago</span>
+                        </div>
+                        <p class="p-body">Validated the Q3 Compliance track. The FinTech governance assessment was
+                            extremely thorough regarding Basel IV requirements.</p>
+                        <div class="highlight-milestone" style="border-left-color: #10b981;">
+                            <div style="font-size: 2rem;">⚖️</div>
+                            <div>
+                                <span
+                                    style="font-size: 0.7rem; font-weight: 800; color: #10b981; text-transform: uppercase;">Compliance
+                                    Verified</span>
+                                <h4 style="margin:5px 0 0; font-size: 1.1rem; color: var(--color-primary-dark);">Global
+                                    Data Privacy L2</h4>
+                            </div>
+                        </div>
+                        <div class="p-actions">
+                            <span>🚀 24 Accolades</span>
+                            <span>💬 4 Comments</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Post 4 -->
+                <div class="post-card glass-card delay-600 animate-content-reveal">
+                    <div class="user-id" style="background: #f0fdf4; color: #166534;">MW</div>
+                    <div class="p-content">
+                        <div class="p-header">
+                            <span class="u-name">Marcus Wright <span
+                                    style="font-size: 0.6rem; background: #6366f1; color: white; padding: 2px 6px; border-radius: 10px;">L8
+                                    SPECIALIST</span></span>
+                            <span class="b-time">Yesterday</span>
+                        </div>
+                        <p class="p-body">Just integrated the newly learned CI/CD hardening patterns into our staging
+                            environment. Pipeline latency dropped by 15% after optimizing the layer caching!</p>
+                        <div class="highlight-milestone" style="border-left-color: #6366f1;">
+                            <div style="font-size: 2rem;">🛠️</div>
+                            <div>
+                                <span
+                                    style="font-size: 0.7rem; font-weight: 800; color: #6366f1; text-transform: uppercase;">Optimization
+                                    Success</span>
+                                <h4 style="margin:5px 0 0; font-size: 1.1rem; color: var(--color-primary-dark);">
+                                    Pipeline Architect L1</h4>
+                            </div>
+                        </div>
+                        <div class="p-actions">
+                            <span>🚀 92 Kudos</span>
+                            <span>💬 15 Comments</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Post 5 -->
+                <div class="post-card delay-500 animate-fade-in-up">
+                    <div class="user-id" style="background: #faf5ff; color: #6b21a8;">JL</div>
+                    <div class="p-content">
+                        <div class="p-header">
+                            <span class="u-name">Jessica Lee <span
+                                    style="font-size: 0.6rem; background: #a855f7; color: white; padding: 2px 6px; border-radius: 10px;">L15
+                                    ELITE</span></span>
+                            <span class="b-time">2 days ago</span>
+                        </div>
+                        <p class="p-body">Deeply impressed by the "Behavioral UX" module. Applying psychological
+                            triggers to our dashboard redesign has already improved user retention in the Internal Beta.
+                        </p>
+                        <div class="p-actions">
+                            <span>👏 210 Kudos</span>
+                            <span>💬 45 Comments</span>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+
+            <aside class="guild-sidebar animate-fade-in-right delay-600">
+                <div class="guild-card glass-card">
+                    <h3
+                        style="font-size: 1.25rem; margin-bottom: 25px; font-weight: 800; color: var(--color-primary-dark);">
+                        Engineering Guild</h3>
+
+                    <div class="rank-entry">
+                        <span class="r-num">1.</span>
+                        <div class="r-info">
+                            <span class="r-name">David Miller</span>
+                            <span class="r-xp">12,450 XP</span>
+                        </div>
+                        <span class="l-badge">LEGEND</span>
+                    </div>
+
+                    <div class="rank-entry">
+                        <span class="r-num">2.</span>
+                        <div class="r-info">
+                            <span class="r-name">Sarah Chen</span>
+                            <span class="r-xp">11,210 XP</span>
+                        </div>
+                        <span class="l-badge">MASTER</span>
+                    </div>
+
+                    <div class="rank-entry">
+                        <span class="r-num">3.</span>
+                        <div class="r-info">
+                            <span class="r-name">Marcus Aurelius</span>
+                            <span class="r-xp">9,800 XP</span>
+                        </div>
+                        <span class="l-badge">ARCHITECT</span>
+                    </div>
+
+                    <div class="rank-entry me">
+                        <span class="r-num" style="color:var(--color-secondary);">4.</span>
+                        <div class="r-info">
+                            <span class="r-name">Alice Student (You)</span>
+                            <span class="r-xp">8,420 XP</span>
+                        </div>
+                        <span class="l-badge"
+                            style="background:var(--color-secondary); color:white; border:none;">SENIOR</span>
+                    </div>
+
+                    <div class="rank-entry">
+                        <span class="r-num">5.</span>
+                        <div class="r-info">
+                            <span class="r-name">Jordan Vance</span>
+                            <span class="r-xp">7,950 XP</span>
+                        </div>
+                        <span class="l-badge">SPECIALIST</span>
+                    </div>
+
+                    <button class="btn btn-outline"
+                        style="width: 100%; margin-top: 25px; border-radius: 12px; font-size: 0.85rem;">Full Tier
+                        List</button>
+
+                    <div
+                        style="margin-top: 35px; padding: 20px; background: #eff6ff; border-radius: 16px; border: 1px solid #dbeafe;">
+                        <h4 style="margin: 0; font-size: 0.9rem; color: #1e40af; font-weight: 800;">Study Pod Recruiting
+                        </h4>
+                        <p style="font-size: 0.8rem; color: #1e40af; opacity: 0.8; margin: 10px 0;">The "K8s Pioneers"
+                            are hunting for 2 Node Experts for the upcoming Advanced Security Lab.</p>
+                        <button class="btn btn-primary"
+                            style="width: 100%; font-size: 0.75rem; padding: 8px; border-radius: 50px;">Join
+                            Request</button>
+                    </div>
+                </div>
+            </aside>
+
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+
+</html>
